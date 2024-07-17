@@ -6,8 +6,10 @@ import { Flex } from 'antd';
 
 const Home = () => {
     const boxStyle = {
+        position: "relative",
+        top: "1rem",
         width: '100%',
-        height: 120,
+        height: '100%',
     };
 
     const fuck = () => {
@@ -29,6 +31,9 @@ const Home = () => {
                 </div>
                 <div className="my-input boost-zone text-center">
                     <p>Boost Zone</p>
+                </div>
+                <div className="my-input text-center bread-count">
+                    <p>1 202 3030 4040</p>
                 </div>
             </Flex>
         </>
