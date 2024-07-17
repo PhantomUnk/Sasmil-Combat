@@ -1,20 +1,24 @@
 import axios from "../axios";
 import React, { useState, useEffect } from "react";
+import '../Scss/Home/Home.css';
 
 const Home = () => {
-    const [data, setData] = useState([])
+
     const fuck = () => {
-        axios.get('users', {"a":1}).then((response) => {
+        axios.post('/users/getUserData', 11).then((response) => {
             console.log(response.data);
         })
     }
-
+    
     useEffect(() => {
-        fuck();
+        
     })
+
     return(
         <>
-            {data}
+            <h1 className="text-xl font-bold underline">
+                Hello world!
+            </h1>
         </>
     )
 }
