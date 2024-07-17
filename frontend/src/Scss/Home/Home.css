@@ -27,9 +27,11 @@ body {
 }
 
 .bread-count {
-  width: 14.25rem;
+  display: inline-block;
   height: 2.38rem;
   position: relative;
   top: 4.3rem;
   padding-top: 0.3rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }/*# sourceMappingURL=Home.css.map */

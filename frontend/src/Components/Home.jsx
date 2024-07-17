@@ -33,7 +33,7 @@ const Home = () => {
                     <p>Boost Zone</p>
                 </div>
                 <div className="my-input text-center bread-count">
-                    <p>1 202 3030 4040</p>
+                    <p>0</p>
                 </div>
             </Flex>
         </>
