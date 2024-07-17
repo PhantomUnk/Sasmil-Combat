@@ -8,6 +8,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from DataBase import DataBase
+import uvicorn
 
 db = DataBase()
 app = FastAPI()  # приложение
@@ -51,20 +52,22 @@ async def registerUser(request: Request):
     return "Ok"
 
 
-# @app.post("/click")
-# async def click(request: Request):
-#     print("Connection!")
-#     temp = await request.body()
-#     data = ast.literal_eval(temp.decode('utf-8'))
-#     print(data)
-#     return f"Status : Ok"
+@app.post("/users/getUserData")
+async def getUsers(request: Request):
+    temp = await request.body()  # получаем данные
+    data = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
 
-@app.get("/click")
+    print(db.getUserData(int(data)))
+
+    return db.getUserData(int(data))[0]
+
+
+@app.post("/click")
 async def click(request: Request):
     print("Connection!")
     temp = await request.body()
     data = ast.literal_eval(temp.decode('utf-8'))
-    print(data)
+    db.userClick(data['id'], data['money'], data['energy'])
     return f"Status : Ok"
 
 # команда для запуска сервера - uvicorn server:app --reload

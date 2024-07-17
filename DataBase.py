@@ -79,3 +79,59 @@ class DataBase:
         except Exception as ex:
             print("Connection refused...")
             print(ex)
+
+    @staticmethod
+    def getUserData(id: int) -> tuple:
+        try:
+            connection = pymysql.connect(
+                host="localhost",
+                port=3305,
+                user="root",
+                password="root",
+                database="sasmilcombatdb",
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print("successfully connected...")
+            try:
+                with connection.cursor() as cursor:
+                    query = f"SELECT * FROM `users` WHERE id = '{id}';"
+                    cursor.execute(query)
+                    rows = cursor.fetchall()
+                    return rows
+            finally:
+                connection.close()
+
+        except Exception as ex:
+            print("Connection refused...")
+            print(ex)
+
+    @staticmethod
+    def userClick(id: int, money: int, energy: int) -> tuple:
+        try:
+            connection = pymysql.connect(
+                host="localhost",
+                port=3305,
+                user="root",
+                password="root",
+                database="sasmilcombatdb",
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            print("successfully connected...")
+            try:
+                with connection.cursor() as cursor:
+                    query = f"UPDATE `sasmilcombatdb`.`users` SET money = {money} WHERE id = {id};"
+                    cursor.execute(query)
+                    connection.commit()
+
+                    query = f"UPDATE `sasmilcombatdb`.`users` SET energy = {energy} WHERE id = {id};"
+                    cursor.execute(query)
+                    connection.commit()
+
+                    rows = cursor.fetchall()
+                    return rows
+            finally:
+                connection.close()
+
+        except Exception as ex:
+            print("Connection refused...")
+            print(ex)
