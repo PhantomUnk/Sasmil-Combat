@@ -1,1 +1,19 @@
-/*# sourceMappingURL=Home.css.map */
+body {
+  background-color: #ECF0F3;
+}
+
+.nameField {
+  background-color: #ECF0F3;
+  width: 9.31rem;
+  height: 2.69rem;
+}
+.nameField p {
+  position: relative;
+  left: 1.2rem;
+  top: -2rem;
+}
+
+.avatarBox {
+  width: 2.69rem;
+  height: 2.69rem;
+}/*# sourceMappingURL=Home.css.map */

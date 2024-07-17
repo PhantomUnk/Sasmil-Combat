@@ -1,0 +1,22 @@
+@import "../main";
+
+body{
+    background-color: $main-color;
+}
+
+
+.nameField{
+    background-color: $main-color;
+    width: 9.31rem; height: 2.69rem;
+
+    p{
+        position: relative;
+        left: 1.2rem;
+        top: -2rem
+    }
+}
+
+.avatarBox{
+    width: 2.69rem;
+    height: 2.69rem;
+}
