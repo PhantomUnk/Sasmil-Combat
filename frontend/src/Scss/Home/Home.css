@@ -16,4 +16,12 @@ body {
 .avatarBox {
   width: 2.69rem;
   height: 2.69rem;
+}
+
+.boost-zone {
+  width: 22.88rem;
+  height: 3.69rem;
+  position: relative;
+  top: 2.2rem;
+  padding-top: 1rem;
 }/*# sourceMappingURL=Home.css.map */

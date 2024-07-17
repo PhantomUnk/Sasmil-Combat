@@ -27,6 +27,9 @@ const Home = () => {
                     <div className="avatarBox my-button"></div>
                     <p>Usre_name</p>
                 </div>
+                <div className="my-input boost-zone text-center">
+                    <p>Boost Zone</p>
+                </div>
             </Flex>
         </>
     )
