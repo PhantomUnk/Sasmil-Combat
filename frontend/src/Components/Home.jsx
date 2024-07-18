@@ -1,5 +1,8 @@
 import axios from "../axios";
 import React, { useState, useEffect } from "react";
+import { LuShoppingCart } from "react-icons/lu";
+import { RiSettings4Line } from "react-icons/ri";
+import { IoIosArrowUp } from "react-icons/io";
 
 import { Flex } from 'antd';
 
@@ -12,7 +15,7 @@ const Home = () => {
     };
 
     const progress = {
-        '--progress': '99%'
+        '--progress': '55%'
     }
 
     const fuck = () => {
@@ -27,7 +30,7 @@ const Home = () => {
 
     return(
         <>
-            <Flex vertical='vertical' style={boxStyle} justify='center' align='center'>
+            <Flex vertical={true} style={boxStyle} justify='center' align='center'>
                 <div className="nameField text-center my-input">
                     <div className="avatarBox my-button"></div>
                     <p>Usre_name</p>
@@ -43,6 +46,12 @@ const Home = () => {
                     </button>
                     <div className="energy progress-circle" style={progress}></div>
                 </div>
+                <p className="energy-count font-bold text-xl">1000/1000</p>
+                <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
+                    <LuShoppingCart fontSize={30} color="#808080"/>
+                    <IoIosArrowUp fontSize={30} color="#808080"/>
+                    <RiSettings4Line fontSize={30} color="#808080"/>
+                </Flex>
             </Flex>
         </>
     )
