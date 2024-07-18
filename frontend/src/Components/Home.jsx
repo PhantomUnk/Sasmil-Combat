@@ -1,6 +1,5 @@
 import axios from "../axios";
 import React, { useState, useEffect } from "react";
-import '../Scss/Home/Home.css';
 
 import { Flex } from 'antd';
 
@@ -11,6 +10,10 @@ const Home = () => {
         width: '100%',
         height: '100%',
     };
+
+    const progress = {
+        '--progress': '99%'
+    }
 
     const fuck = () => {
         axios.post('/users/getUserData', 11).then((response) => {
@@ -34,6 +37,11 @@ const Home = () => {
                 </div>
                 <div className="my-input text-center bread-count">
                     <p>0</p>
+                </div>
+                <div className="main-circle my-input">
+                    <button className="inner-circle my-button">
+                    </button>
+                    <div className="energy progress-circle" style={progress}></div>
                 </div>
             </Flex>
         </>

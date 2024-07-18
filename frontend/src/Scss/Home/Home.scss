@@ -39,3 +39,55 @@ body{
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+.main-circle{
+    z-index: 1;
+    width: 14.25rem; height: 14.25rem;
+    border-radius: 20rem;
+
+    position: relative;
+    top: 8rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .inner-circle{
+        z-index: 1;
+        width: 10.75rem; height: 10.75rem;
+        border-radius: 20rem;
+        box-shadow: -0.25rem -0.25rem 1rem 0rem rgba(160, 164, 171, 0.75),0.38rem 0.38rem 1rem 0rem rgba(160, 164, 171, 0.25);
+    }
+
+    .energy{
+        position: absolute;
+    }
+}
+
+.progress-circle {
+    z-index: -1;
+    --color: #56B6FF;
+    --color-2: #ECF0F3;
+    --circle-size: 5px;
+    --border-width: 5px;
+
+    width: 13.44rem;
+    height: 13.44rem;
+    border-radius: 50%;
+    margin: .5em;
+    background-image: conic-gradient(var(--color) var(--progress), var(--color-2) 0);
+    position: relative;
+}
+
+.progress-circle::before {
+    --inner-circle-size: calc(var(--circle-size) - var(--border-width));
+    --inner-circle-gap: calc(var(--border-width) / 2);
+
+    content: '';
+    display: block;
+    width: var(--inner-circle-size);
+    height: var(--inner-circle-size);
+    border-radius: 50%;
+    position: relative;
+    left: var(--inner-circle-gap);
+    top: var(--inner-circle-gap);
+}
