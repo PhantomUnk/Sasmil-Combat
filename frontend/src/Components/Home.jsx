@@ -7,6 +7,10 @@ import { IoIosArrowUp } from "react-icons/io";
 import { Flex } from 'antd';
 
 const Home = () => {
+    const [userData, setUserData] = useState({}); // Данные пользователя которые ты потом будешь исользовать
+    const [currentMoney, setScore] = useState(0); // его бабки
+    const [currentEnergy, setEnergy] = useState(5000); // его энергмя
+    const [getProgress, setProgress] = useState(0); // progress Bar 
     const boxStyle = {
         position: "relative",
         top: "1rem",
@@ -14,20 +18,33 @@ const Home = () => {
         height: '100%',
     };
 
-    const progress = {
-        '--progress': '55%'
-    }
-
-    const fuck = () => {
-        axios.post('/users/getUserData', 11).then((response) => {
+    const addClick = () => {
+        setScore((s) => s + 1); // прибавляем очки
+        setEnergy((e) => e - 1); // убавляем энергию
+        axios.post('/click', {id:11,money: currentMoney + 1, energy: currentEnergy - 1, }).then((response) => {
             console.log(response.data);
         })
     }
+    const setData = async () => {
+        await axios
+            .post('/users/getUserData', 11)
+            .then((response) => {
+                // проставляем данные
+                setUserData(response.data);
+                setScore(response.data.money);
+                setEnergy(response.data.energy);
+        })
+            .catch((error) => console.log(error));
+    }
     
     useEffect(() => {
-        
-    })
-
+        // setData();\
+        setProgress(`${currentEnergy/60}%`)
+    }, [])
+    
+    const progress = {
+        '--progress': getProgress
+    }
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -39,14 +56,15 @@ const Home = () => {
                     <p>Boost Zone</p>
                 </div>
                 <div className="my-input text-center bread-count">
-                    <p>0</p>
+                    <p>{1}</p>
                 </div>
                 <div className="main-circle my-input">
-                    <button className="inner-circle my-button">
+                    <button className="inner-circle my-button" >
+                        {/* onClick={() => addClick()} */}
                     </button>
                     <div className="energy progress-circle" style={progress}></div>
                 </div>
-                <p className="energy-count font-bold text-xl">1000/1000</p>
+                <p className="energy-count font-bold text-xl">{1000}/1000</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
                     <LuShoppingCart fontSize={30} color="#808080"/>
                     <IoIosArrowUp fontSize={30} color="#808080"/>
