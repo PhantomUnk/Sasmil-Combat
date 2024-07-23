@@ -68,7 +68,6 @@ const Home = () => {
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
                     <LuShoppingCart fontSize={30} color="#808080"/>
-                    <IoIosArrowUp fontSize={30} color="#808080"/>
                     <RiSettings4Line fontSize={30} color="#808080"/>
                 </Flex>
             </Flex>
