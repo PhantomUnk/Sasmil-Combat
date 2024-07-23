@@ -2,7 +2,7 @@ import axios from "../axios";
 import React, { useState, useEffect } from "react";
 import { LuShoppingCart } from "react-icons/lu";
 import { RiSettings4Line } from "react-icons/ri";
-import { IoIosArrowUp } from "react-icons/io";
+import Modal from 'react-modal';
 
 import { Flex } from 'antd';
 
@@ -10,7 +10,9 @@ const Home = () => {
     const [userData, setUserData] = useState({}); // Данные пользователя которые ты потом будешь исользовать
     const [currentMoney, setScore] = useState(); // его бабки
     const [currentEnergy, setEnergy] = useState(); // его энергмя
-    const [getProgress, setProgress] = useState(); // progress Bar 
+    const [getProgress, setProgress] = useState(); // progress Bar
+    const [open, setOpen] = useState(false);
+
     const boxStyle = {
         position: "relative",
         top: "1rem",
@@ -26,6 +28,12 @@ const Home = () => {
         })
         setProgress(`${currentEnergy/10}%`)
     }
+    const styleForModal = {
+        overlay: {
+            backgroundColor: "none",
+            height: "70lvh",
+        },
+    }
     const setData = async () => {
         await axios
             .post('/users/getUserData', 11)
@@ -39,9 +47,9 @@ const Home = () => {
             setProgress(`${currentEnergy/10}%`)
     }
     
-    useEffect(() => {
-        setData();
-    }, [])
+    // useEffect(() => {
+    //     setData();
+    // }, [])
     
     const progress = {
         '--progress': getProgress
@@ -60,14 +68,40 @@ const Home = () => {
                     <p>{currentMoney}</p>
                 </div>
                 <div className="main-circle my-input">
-                    <button className="inner-circle my-button" onClick={() => addClick()}>
-                        
-                    </button>
+                    <button className="inner-circle my-button" onClick={() => addClick()} />
                     <div className="energy progress-circle" style={progress}></div>
                 </div>
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
+                
+                
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
-                    <LuShoppingCart fontSize={30} color="#808080"/>
+                    <LuShoppingCart fontSize={30} color="#808080" onClick={() => setOpen(true)}/>
+                    <Modal isOpen={open} onRequestClose={!open} style={styleForModal}>
+                        <Flex
+                                vertical={false} 
+                                justify='space-around' 
+                                align='center' 
+                                wrap={true} 
+                                flex={'content'}>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button className="my-button">d</button>
+                            <button onClick={() => setOpen(false)}>close</button>
+                        </Flex>
+                    </Modal>
                     <RiSettings4Line fontSize={30} color="#808080"/>
                 </Flex>
             </Flex>

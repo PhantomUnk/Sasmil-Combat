@@ -1,5 +1,9 @@
 @import "../main";
 
+// *{
+//     outline: red 5px solid;
+// }
+
 body{
     background-color: $main-color;
 }
@@ -56,10 +60,6 @@ body{
         width: 10.75rem; height: 10.75rem;
         border-radius: 20rem;
         box-shadow: -0.25rem -0.25rem 1rem 0rem rgba(160, 164, 171, 0.75),0.38rem 0.38rem 1rem 0rem rgba(160, 164, 171, 0.25);
-        
-        &:active{
-            background-color: darken($color: $main-color, $amount: 20);
-        }
     }
 
     .energy{
@@ -106,4 +106,12 @@ body{
     bottom: -21.8rem;
 
     width: 23.19rem; height: 3.31rem;
+}
+
+.ReactModal__Overlay{
+    z-index: 20;
+
+    button{
+        width: 50px; height: 50px;
+    }
 }

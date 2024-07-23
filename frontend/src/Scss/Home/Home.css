@@ -1,3 +1,7 @@
+.my-button:active {
+  background-color: #adbfcc;
+}
+
 body {
   background-color: #ECF0F3;
 }
@@ -54,9 +58,6 @@ body {
   border-radius: 20rem;
   box-shadow: -0.25rem -0.25rem 1rem 0rem rgba(160, 164, 171, 0.75), 0.38rem 0.38rem 1rem 0rem rgba(160, 164, 171, 0.25);
 }
-.main-circle .inner-circle:active {
-  background-color: #adbfcc;
-}
 .main-circle .energy {
   position: absolute;
 }
@@ -98,4 +99,12 @@ body {
   bottom: -21.8rem;
   width: 23.19rem;
   height: 3.31rem;
+}
+
+.ReactModal__Overlay {
+  z-index: 20;
+}
+.ReactModal__Overlay button {
+  width: 50px;
+  height: 50px;
 }/*# sourceMappingURL=Home.css.map */
