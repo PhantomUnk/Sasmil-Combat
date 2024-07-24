@@ -1,6 +1,6 @@
 @import "../main";
 
-// *{
+// {
 //     outline: red 5px solid;
 // }
 
@@ -60,6 +60,10 @@ body{
         width: 10.75rem; height: 10.75rem;
         border-radius: 20rem;
         box-shadow: -0.25rem -0.25rem 1rem 0rem rgba(160, 164, 171, 0.75),0.38rem 0.38rem 1rem 0rem rgba(160, 164, 171, 0.25);
+        
+        &:active{
+            background-color: darken($color: $main-color, $amount: 20);
+        }
     }
 
     .energy{
@@ -113,5 +117,10 @@ body{
 
     button{
         width: 50px; height: 50px;
+        margin: 20px;
+
+        &:active{
+            background-color: darken($color: $main-color, $amount: 20);
+        }
     }
 }

@@ -7,21 +7,21 @@ import Modal from 'react-modal'; // библиотека для модально
 import { Flex } from 'antd'; // импортирую библиотеку ant design
 
 
-class ModalMethods{
-    #setOpen
-    #isOpen
-    constructor(setOpen, isOpen) {
+class ModalMethods{ // class для модального окна
+    #setOpen // private поле с setter
+    #isOpen // private поле сосотояние окна
+    constructor(setOpen, isOpen) { 
         this.#setOpen = setOpen;
         this.#isOpen = isOpen;
     }
-    openModal = () => {
+    openModal = () => { // функция для открытия окна
         this.#setOpen(true);
     }
-    closeModal = () => {
+    closeModal = () => { // функция для закрытия окна
         this.#setOpen(false);
     }
 
-    isOpenM = () => {
+    isOpenM = () => { // получение состояния окна
         return this.#isOpen
     }
 }
@@ -39,22 +39,22 @@ const Home = () => {
         width: '100%',
         height: '100%',
     };
-
     const addClick = () => {
         setScore((s) => s + 1); // прибавляем очки
         setEnergy((e) => e - 1); // убавляем энергию
         axios.post('/click', {id:11,money: currentMoney + 1, energy: currentEnergy - 1, }).then((response) => {
             console.log(response.data);
         })
-        setProgress(`${currentEnergy/10}%`)
+        setProgress(`${currentEnergy/10}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
     }
-    const styleForModal = {
+    const styleForModal = { // style for Flex
         overlay: {
             backgroundColor: "none",
             height: "70lvh",
+            borderRadius: "25px"
         },
     }
-    const setData = async () => {
+    const setData = async () => { // Функция для получения дванных с ЗАВОДА
         await axios
             .post('/users/getUserData', 11)
             .then((response) => {
@@ -64,18 +64,18 @@ const Home = () => {
                 setEnergy(response.data.energy);
         })
             .catch((error) => console.log(error));
-            setProgress(`${currentEnergy/10}%`)
     }
     
-    // useEffect(() => {
-    //     setData();
-    // }, [])
+    useEffect(() => {
+        setProgress(`${currentEnergy/10}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+        setData();
+    }, [])
     
     const progress = {
         '--progress': getProgress
     }
     let modal1 = new ModalMethods(setOpenModal1, openModal1)
-    
+    Modal.setAppElement('#root');
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -94,11 +94,9 @@ const Home = () => {
                     <div className="energy progress-circle" style={progress}></div>
                 </div>
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
-                
-                
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
                     <LuShoppingCart fontSize={30} color="#808080" onClick={() => modal1.openModal()}/>
-                    <Modal isOpen={modal1.isOpenM()} onRequestClose={modal1.closeModal()} style={styleForModal}>
+                    <Modal isOpen={modal1.isOpenM()} onRequestClose={modal1.closeModal} style={styleForModal}>
                         <Flex
                                 vertical={false} 
                                 justify='space-around' 
@@ -121,7 +119,7 @@ const Home = () => {
                             <button className="my-button">d</button>
                             <button className="my-button">d</button>
                             <button className="my-button">d</button>
-                            <button onClick={() => setOpenModal1(false)}>close</button>
+                            <button onClick={() => modal1.closeModal()}>close</button>
                         </Flex>
                     </Modal>
                     <RiSettings4Line fontSize={30} color="#808080"/>
