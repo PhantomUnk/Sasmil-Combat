@@ -45,14 +45,16 @@ const Home = () => {
         axios.post('/click', {id:11,money: currentMoney + 1, energy: currentEnergy - 1, }).then((response) => {
             console.log(response.data);
         })
-        setProgress(`${currentEnergy/10}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
     }
     const styleForModal = { // style for Flex
         overlay: {
-            backgroundColor: "none",
-            height: "70lvh",
-            borderRadius: "25px"
+            backgroundColor: "rgba(120, 120, 120, 0.36)",
+            height: "100lvh",
         },
+        content:{
+            borderRadius: "15px",
+        }
     }
     const setData = async () => { // Функция для получения дванных с ЗАВОДА
         await axios
@@ -64,10 +66,11 @@ const Home = () => {
                 setEnergy(response.data.energy);
         })
             .catch((error) => console.log(error));
+            console.log(userData);
     }
     
     useEffect(() => {
-        setProgress(`${currentEnergy/10}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
         setData();
     }, [])
     

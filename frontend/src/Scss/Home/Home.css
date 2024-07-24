@@ -42,7 +42,7 @@ body {
   height: 14.25rem;
   border-radius: 20rem;
   position: relative;
-  top: 8rem;
+  top: 15lvh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,12 +90,12 @@ body {
 
 .energy-count {
   position: relative;
-  top: 10rem;
+  top: 20lvh;
 }
 
 .navigation {
   position: relative;
-  bottom: -21.8rem;
+  bottom: -30lvh;
   width: 23.19rem;
   height: 3.31rem;
 }

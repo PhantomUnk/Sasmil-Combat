@@ -50,7 +50,7 @@ body{
     border-radius: 20rem;
 
     position: relative;
-    top: 8rem;
+    top: 15lvh;
 
     display: flex;
     justify-content: center;
@@ -99,15 +99,15 @@ body{
     left: var(--inner-circle-gap);
     top: var(--inner-circle-gap);
 }
-
+$d: rgba(120, 120, 120, 0.36);
 .energy-count{
     position: relative;
-    top: 10rem;
+    top: 20lvh;
 }
 
 .navigation{
     position: relative;
-    bottom: -21.8rem;
+    bottom: -30lvh;
 
     width: 23.19rem; height: 3.31rem;
 }
