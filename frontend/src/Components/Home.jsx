@@ -2,9 +2,11 @@ import axios from "../axios";
 import React, { useState, useEffect } from "react";
 import Modal from 'react-modal'; // библиотека для модального окна
 
-import { Flex, Card  } from 'antd'; // импортирую библиотеку ant design
+import { Flex, Card, Button } from 'antd'; // импортирую библиотеку ant design
 import { SettingOutlined, ShoppingCartOutlined } from '@ant-design/icons'; // иконка настроек, корзины
+
 import { AiFillThunderbolt } from "react-icons/ai";
+import { PiBreadLight } from "react-icons/pi";
 class ModalMethods{ // class для модального окна
     #setOpen // private поле с setter
     #isOpen // private поле сосотояние окна
@@ -27,16 +29,33 @@ class ModalMethods{ // class для модального окна
 
 const Home = () => {
     const [userData, setUserData] = useState({}); // Данные пользователя
-    const [currentMoney, setScore] = useState(); // его деньги
+    const [currentMoney, setScore] = useState(1000); // его деньги
     const [currentEnergy, setEnergy] = useState(); // его энергмя
     const [getProgress, setProgress] = useState(); // progress Bar
-    const [openModal1, setOpenModal1] = useState(false); // useState для модального окна
+    const [openModal, setOpenModal] = useState(false); // useState для модального окна
+
+    const styleForModal = { // style for Flex
+        overlay: {
+            backgroundColor: "rgba(120, 120, 120, 0.36)",
+            height: "100lvh",
+        },
+        content:{
+            borderRadius: "15px",
+            backgroundColor: "#F7F7F7",
+        }
+    }
+
     const boxStyle = { // style для Flex
         position: "relative",
         top: "1rem",
         width: '100%',
         height: '100%',
     };
+
+    const actions = [
+        <Button type="primary">5 000 <PiBreadLight/></Button>
+    ];
+
     const addClick = () => {
         setScore((s) => s + 1); // прибавляем очки
         setEnergy((e) => e - 1); // убавляем энергию
@@ -45,15 +64,7 @@ const Home = () => {
         })
         setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
     }
-    const styleForModal = { // style for Flex
-        overlay: {
-            backgroundColor: "rgba(120, 120, 120, 0.36)",
-            height: "100lvh",
-        },
-        content:{
-            borderRadius: "15px",
-        }
-    }
+
     const setData = async () => { // Функция для получения дванных с ЗАВОДА
         await axios
             .post('/users/getUserData', 11)
@@ -83,13 +94,13 @@ const Home = () => {
     const progress = {
         '--progress': getProgress
     }
-    let modal1 = new ModalMethods(setOpenModal1, openModal1)
+    let modal = new ModalMethods(setOpenModal, openModal)
     Modal.setAppElement('#root');
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
-                <div className="nameField text-center my-input">
-                    <div className="avatarBox my-button"></div>
+                <div className="name-field text-center my-input">
+                    <div className="avatar-box my-button"></div>
                     <p>Usre_name</p>
                 </div>
                 <div className="my-input boost-zone text-center">
@@ -97,6 +108,7 @@ const Home = () => {
                 </div>
                 <div className="my-input text-center bread-count">
                     <p>{currentMoney}</p>
+                    <PiBreadLight fontWeight={"bolder"} fontSize={15}/>
                 </div>
                 <div className="main-circle my-input">
                     <button className="inner-circle my-button" onClick={() => addClick()} />
@@ -104,24 +116,25 @@ const Home = () => {
                 </div>
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
-                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => modal1.openModal()}/>
-                    <Modal isOpen={modal1.isOpenM()} onRequestClose={modal1.closeModal} style={styleForModal}>
+                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => modal.openModal()}/>
+                    <Modal isOpen={modal.isOpenM()} onRequestClose={modal.closeModal} style={styleForModal}>
                         <Flex
                                 vertical={false} 
                                 justify='space-around' 
                                 align='center' 
                                 wrap={true} 
                                 flex={'content'}>
-                            
-                            <Card  style={{ width: 300 }}>
+                            {/* // TODO: Сделать map для всех бустов которые я буду получать с ЗАВОДА */}
+                            <Card   actions={actions}>
                                 <Card.Meta
-                                    avatar = <AiFillThunderbolt />
-                                    title= "Energy"
+                                    avatar = {<PiBreadLight fontSize={20} style={{marginTop: "3px"}} /> }
+                                    title= "Bread"
                                 />
                                 <p>Увеличивает вашу энегрию на 1000</p>
                                 <p>Время: Навсегда</p>
+                                
                             </Card>
-                            <button onClick={() => modal1.closeModal()}>close</button>
+                            <button onClick={() => modal.closeModal()}>close</button>
                         </Flex>
                     </Modal>
                     <SettingOutlined  style={{fontSize: 25, color:"#808080"}}/>

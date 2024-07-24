@@ -7,18 +7,18 @@ body {
   background-color: #ECF0F3;
 }
 
-.nameField {
+.name-field {
   background-color: #ECF0F3;
   width: 9.31rem;
   height: 2.69rem;
 }
-.nameField p {
+.name-field p {
   position: relative;
   left: 1.2rem;
   top: -2rem;
 }
 
-.avatarBox {
+.avatar-box {
   width: 2.69rem;
   height: 2.69rem;
 }
@@ -32,13 +32,17 @@ body {
 }
 
 .bread-count {
-  display: inline-block;
+  display: flex;
+  gap: 5px;
   height: 2.38rem;
   position: relative;
   top: 4.3rem;
   padding-top: 0.3rem;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+.bread-count svg {
+  margin-top: 5px;
 }
 
 .main-circle {
@@ -108,12 +112,4 @@ body {
 
 .ReactModal__Overlay {
   z-index: 20;
-}
-.ReactModal__Overlay button {
-  width: 50px;
-  height: 50px;
-  margin: 20px;
-}
-.ReactModal__Overlay button:active {
-  background-color: #adbfcc;
 }/*# sourceMappingURL=Home.css.map */
