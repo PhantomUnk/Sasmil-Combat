@@ -4,6 +4,10 @@
 //     outline: red 5px solid;
 // }
 
+html{
+    height: 100%;
+    width: 100%;
+}
 body{
     background-color: $main-color;
 }
@@ -99,16 +103,16 @@ body{
     left: var(--inner-circle-gap);
     top: var(--inner-circle-gap);
 }
-$d: rgba(120, 120, 120, 0.36);
+
 .energy-count{
     position: relative;
     top: 20lvh;
 }
 
 .navigation{
-    position: relative;
-    bottom: -30lvh;
-
+    position: absolute;
+    top: 85lvh;
+    margin: auto;
     width: 23.19rem; height: 3.31rem;
 }
 

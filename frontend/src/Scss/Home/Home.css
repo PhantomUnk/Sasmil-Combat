@@ -1,3 +1,8 @@
+html {
+  height: 100%;
+  width: 100%;
+}
+
 body {
   background-color: #ECF0F3;
 }
@@ -94,8 +99,9 @@ body {
 }
 
 .navigation {
-  position: relative;
-  bottom: -30lvh;
+  position: absolute;
+  top: 85lvh;
+  margin: auto;
   width: 23.19rem;
   height: 3.31rem;
 }

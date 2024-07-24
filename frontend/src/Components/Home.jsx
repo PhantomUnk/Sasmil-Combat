@@ -1,12 +1,10 @@
 import axios from "../axios";
 import React, { useState, useEffect } from "react";
-import { LuShoppingCart } from "react-icons/lu"; // иконка корзины
-import { RiSettings4Line } from "react-icons/ri"; // иконка настроек
 import Modal from 'react-modal'; // библиотека для модального окна
 
-import { Flex } from 'antd'; // импортирую библиотеку ant design
-
-
+import { Flex, Card  } from 'antd'; // импортирую библиотеку ant design
+import { SettingOutlined, ShoppingCartOutlined } from '@ant-design/icons'; // иконка настроек, корзины
+import { AiFillThunderbolt } from "react-icons/ai";
 class ModalMethods{ // class для модального окна
     #setOpen // private поле с setter
     #isOpen // private поле сосотояние окна
@@ -26,13 +24,13 @@ class ModalMethods{ // class для модального окна
     }
 }
 
+
 const Home = () => {
     const [userData, setUserData] = useState({}); // Данные пользователя
     const [currentMoney, setScore] = useState(); // его деньги
     const [currentEnergy, setEnergy] = useState(); // его энергмя
     const [getProgress, setProgress] = useState(); // progress Bar
     const [openModal1, setOpenModal1] = useState(false); // useState для модального окна
-
     const boxStyle = { // style для Flex
         position: "relative",
         top: "1rem",
@@ -69,10 +67,18 @@ const Home = () => {
             console.log(userData);
     }
     
-    useEffect(() => {
-        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
-        setData();
-    }, [])
+    // function createCard(name){
+    //     return(
+    //         <Card title={name}>
+    //             <p>Hello</p>
+    //         </Card>
+    //     )
+    // }
+
+    // useEffect(() => {
+    //     setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+    //     setData();
+    // }, [])
     
     const progress = {
         '--progress': getProgress
@@ -98,7 +104,7 @@ const Home = () => {
                 </div>
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
-                    <LuShoppingCart fontSize={30} color="#808080" onClick={() => modal1.openModal()}/>
+                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => modal1.openModal()}/>
                     <Modal isOpen={modal1.isOpenM()} onRequestClose={modal1.closeModal} style={styleForModal}>
                         <Flex
                                 vertical={false} 
@@ -106,26 +112,19 @@ const Home = () => {
                                 align='center' 
                                 wrap={true} 
                                 flex={'content'}>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
-                            <button className="my-button">d</button>
+                            
+                            <Card  style={{ width: 300 }}>
+                                <Card.Meta
+                                    avatar = <AiFillThunderbolt />
+                                    title= "Energy"
+                                />
+                                <p>Увеличивает вашу энегрию на 1000</p>
+                                <p>Время: Навсегда</p>
+                            </Card>
                             <button onClick={() => modal1.closeModal()}>close</button>
                         </Flex>
                     </Modal>
-                    <RiSettings4Line fontSize={30} color="#808080"/>
+                    <SettingOutlined  style={{fontSize: 25, color:"#808080"}}/>
                 </Flex>
             </Flex>
         </>
