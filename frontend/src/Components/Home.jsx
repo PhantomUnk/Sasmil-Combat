@@ -1,19 +1,39 @@
 import axios from "../axios";
 import React, { useState, useEffect } from "react";
-import { LuShoppingCart } from "react-icons/lu";
-import { RiSettings4Line } from "react-icons/ri";
-import Modal from 'react-modal';
+import { LuShoppingCart } from "react-icons/lu"; // иконка корзины
+import { RiSettings4Line } from "react-icons/ri"; // иконка настроек
+import Modal from 'react-modal'; // библиотека для модального окна
 
-import { Flex } from 'antd';
+import { Flex } from 'antd'; // импортирую библиотеку ant design
+
+
+class ModalMethods{
+    #setOpen
+    #isOpen
+    constructor(setOpen, isOpen) {
+        this.#setOpen = setOpen;
+        this.#isOpen = isOpen;
+    }
+    openModal = () => {
+        this.#setOpen(true);
+    }
+    closeModal = () => {
+        this.#setOpen(false);
+    }
+
+    isOpenM = () => {
+        return this.#isOpen
+    }
+}
 
 const Home = () => {
-    const [userData, setUserData] = useState({}); // Данные пользователя которые ты потом будешь исользовать
-    const [currentMoney, setScore] = useState(); // его бабки
+    const [userData, setUserData] = useState({}); // Данные пользователя
+    const [currentMoney, setScore] = useState(); // его деньги
     const [currentEnergy, setEnergy] = useState(); // его энергмя
     const [getProgress, setProgress] = useState(); // progress Bar
-    const [open, setOpen] = useState(false);
+    const [openModal1, setOpenModal1] = useState(false); // useState для модального окна
 
-    const boxStyle = {
+    const boxStyle = { // style для Flex
         position: "relative",
         top: "1rem",
         width: '100%',
@@ -54,6 +74,8 @@ const Home = () => {
     const progress = {
         '--progress': getProgress
     }
+    let modal1 = new ModalMethods(setOpenModal1, openModal1)
+    
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -75,8 +97,8 @@ const Home = () => {
                 
                 
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
-                    <LuShoppingCart fontSize={30} color="#808080" onClick={() => setOpen(true)}/>
-                    <Modal isOpen={open} onRequestClose={!open} style={styleForModal}>
+                    <LuShoppingCart fontSize={30} color="#808080" onClick={() => modal1.openModal()}/>
+                    <Modal isOpen={modal1.isOpenM()} onRequestClose={modal1.closeModal()} style={styleForModal}>
                         <Flex
                                 vertical={false} 
                                 justify='space-around' 
@@ -99,7 +121,7 @@ const Home = () => {
                             <button className="my-button">d</button>
                             <button className="my-button">d</button>
                             <button className="my-button">d</button>
-                            <button onClick={() => setOpen(false)}>close</button>
+                            <button onClick={() => setOpenModal1(false)}>close</button>
                         </Flex>
                     </Modal>
                     <RiSettings4Line fontSize={30} color="#808080"/>
