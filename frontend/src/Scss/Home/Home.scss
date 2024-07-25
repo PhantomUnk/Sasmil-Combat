@@ -122,4 +122,43 @@ body{
 
 .ReactModal__Overlay{
     z-index: 20;
+    opacity: 0;
 }
+
+
+@keyframes modalAnimOpen {
+    0% {
+        opacity: 0;
+        transform: translateY(900px);
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalAnimClose {
+    0% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(900px);
+    }
+}
+
+.ReactModal__Overlay--after-open{
+    opacity: 1;
+    animation: 300ms modalAnimOpen forwards ease-in;
+}
+
+.ReactModal__Overlay--before-close{
+    opacity: 0;
+    animation: 300ms modalAnimClose forwards ease-out;
+}
+

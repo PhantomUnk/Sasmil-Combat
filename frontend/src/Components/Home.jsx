@@ -1,11 +1,13 @@
 import axios from "../axios";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from 'react-modal'; // библиотека для модального окна
 
 import { Flex, Card, Button } from 'antd'; // импортирую библиотеку ant design
 import { SettingOutlined, ShoppingCartOutlined } from '@ant-design/icons'; // иконка настроек, корзины
 
-import { AiFillThunderbolt } from "react-icons/ai";
+import { Bounce, ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { PiBreadLight } from "react-icons/pi";
 class ModalMethods{ // class для модального окна
     #setOpen // private поле с setter
@@ -96,6 +98,12 @@ const Home = () => {
     }
     let modal = new ModalMethods(setOpenModal, openModal)
     Modal.setAppElement('#root');
+
+    const test = [
+        {"name": "test", "description": "sasa", "price": 1000, "time": "навсегда", "logo": <PiBreadLight fontSize={20} style={{marginTop: "3px"}} />}
+    ]
+
+    const [inProp, setInProp] = useState(false);
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -114,29 +122,46 @@ const Home = () => {
                     <button className="inner-circle my-button" onClick={() => addClick()} />
                     <div className="energy progress-circle" style={progress}></div>
                 </div>
+                
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
-                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => modal.openModal()}/>
-                    <Modal isOpen={modal.isOpenM()} onRequestClose={modal.closeModal} style={styleForModal}>
-                        <Flex
-                                vertical={false} 
-                                justify='space-around' 
-                                align='center' 
-                                wrap={true} 
-                                flex={'content'}>
-                            {/* // TODO: Сделать map для всех бустов которые я буду получать с ЗАВОДА */}
-                            <Card   actions={actions}>
-                                <Card.Meta
-                                    avatar = {<PiBreadLight fontSize={20} style={{marginTop: "3px"}} /> }
-                                    title= "Bread"
-                                />
-                                <p>Увеличивает вашу энегрию на 1000</p>
-                                <p>Время: Навсегда</p>
-                                
-                            </Card>
-                            <button onClick={() => modal.closeModal()}>close</button>
-                        </Flex>
-                    </Modal>
+                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => {setInProp(true); modal.openModal()}}/>
+                        <Modal 
+                            isOpen={modal.isOpenM()} 
+                            onRequestClose={modal.closeModal} 
+                            style={styleForModal}
+                            closeTimeoutMS={3000}
+                        >
+                            <Flex
+                                    vertical={false} 
+                                    justify='space-around' 
+                                    align='center' 
+                                    wrap={true} 
+                                    flex={'content'}>
+                                {/* // TODO: Сделать map для всех бустов которые я буду получать с ЗАВОДА */}
+                                <Card actions={actions} style={{width: "100%", margin: "10px 0px"}}>
+                                    <Card.Meta
+                                        avatar = {<PiBreadLight fontSize={20} style={{marginTop: "3px"}} /> }
+                                        title= "Bread"
+                                    />
+                                    <p>Увеличивает вашу энегрию на 1000</p>
+                                    <p>Время: Навсегда</p>
+                                    
+                                </Card>
+                                {test.map(boost => (
+                                    <Card actions={actions} style={{width: "100%", margin: "10px 0px"}}>
+                                        <Card.Meta
+                                            avatar = {boost.logo}
+                                            title= {boost.name}
+                                        />
+                                        <p>{boost.description}</p>
+                                        <p>Время: {boost.time}</p>
+                                        
+                                    </Card>
+                                ))}
+                                <button onClick={() => modal.closeModal()}>close</button>
+                            </Flex>
+                        </Modal>
                     <SettingOutlined  style={{fontSize: 25, color:"#808080"}}/>
                 </Flex>
             </Flex>
