@@ -3,7 +3,9 @@ import React, { useState, useEffect} from "react";
 import Modal from 'react-modal'; // библиотека для модального окна
 
 import { Flex, Card, Button } from 'antd'; // импортирую библиотеку ant design
-import { SettingOutlined, ShoppingCartOutlined } from '@ant-design/icons'; // иконка настроек, корзины
+import { SettingOutlined, ShoppingCartOutlined, SyncOutlined } from '@ant-design/icons'; // иконка настроек, корзины
+
+import { TbHandFinger } from "react-icons/tb";
 
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,7 +37,7 @@ const Home = () => {
     const [currentEnergy, setEnergy] = useState(); // его энергмя
     const [getProgress, setProgress] = useState(); // progress Bar
     const [openModal, setOpenModal] = useState(false); // useState для модального окна
-    const [boosts, setBoosts] = useState([]);
+    const [boosts, setBoosts] = useState(["sas"]);
 
     const styleForModal = { // style for Modal
         overlay: {
@@ -81,14 +83,15 @@ const Home = () => {
         await axios
             .get('/boosts/getAvailableBoosts')
             .then((response) => {
-                
+                setBoosts(response.data)
             })
     }
     
-    // useEffect(() => {
-    //     setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
-    //     setData();
-    // }, [])
+    useEffect(() => {
+        setBoost()
+        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+        setData();
+    }, [])
     
     const progress = {
         '--progress': getProgress
@@ -97,6 +100,15 @@ const Home = () => {
     let modal = new ModalMethods(setOpenModal, openModal)
     Modal.setAppElement('#root');
 
+    const boostAvatars = {
+        "Bread" : <PiBreadLight fontSize={20} style={{marginTop: "3px"}} />,
+        "MultiTap": <TbHandFinger fontSize={20} style={{marginTop: "3px"}}/>,
+        "FullBread": <SyncOutlined spin />
+    }
+
+    const setBoostAvatar = (name) => {
+        return boostAvatars[name]
+    }
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -141,16 +153,17 @@ const Home = () => {
                                     <p>Время: Навсегда</p>
                                     
                                 </Card>
+                                
                                 {boosts.map(boost => (
-                                    <Card actions={'d'} style={{width: "100%", margin: "10px 0px"}}>
-                                        <Card.Meta
-                                            avatar = {boost.logo}
-                                            title= {boost.name}
-                                        />
-                                        <p>{boost.description}</p>
-                                        <p>Время: {boost.time}</p>
-                                        
-                                    </Card>
+                                    <Card actions={[<Button type="primary">{boost.price} <PiBreadLight/></Button>]} style={{width: "100%", margin: "10px 0px"}}>
+                                    <Card.Meta
+                                        avatar = {setBoostAvatar(boost.name)}
+                                        title= {boost.name}
+                                    />
+                                    <p>{boost.description}</p>
+                                    <p>Время: {boost.time == "infinity" ? "Навсегда" : boost.time}</p>
+                                    
+                                </Card>
                                 ))}
                                 <button onClick={() => modal.closeModal()}>close</button>
                             </Flex>
