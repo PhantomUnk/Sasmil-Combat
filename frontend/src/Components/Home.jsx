@@ -1,5 +1,5 @@
 import axios from "../axios";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect} from "react";
 import Modal from 'react-modal'; // библиотека для модального окна
 
 import { Flex, Card, Button } from 'antd'; // импортирую библиотеку ant design
@@ -35,8 +35,9 @@ const Home = () => {
     const [currentEnergy, setEnergy] = useState(); // его энергмя
     const [getProgress, setProgress] = useState(); // progress Bar
     const [openModal, setOpenModal] = useState(false); // useState для модального окна
+    const [boosts, setBoosts] = useState([]);
 
-    const styleForModal = { // style for Flex
+    const styleForModal = { // style for Modal
         overlay: {
             backgroundColor: "rgba(120, 120, 120, 0.36)",
             height: "100lvh",
@@ -53,10 +54,6 @@ const Home = () => {
         width: '100%',
         height: '100%',
     };
-
-    const actions = [
-        <Button type="primary">5 000 <PiBreadLight/></Button>
-    ];
 
     const addClick = () => {
         setScore((s) => s + 1); // прибавляем очки
@@ -79,15 +76,15 @@ const Home = () => {
             .catch((error) => console.log(error));
             console.log(userData);
     }
-    
-    // function createCard(name){
-    //     return(
-    //         <Card title={name}>
-    //             <p>Hello</p>
-    //         </Card>
-    //     )
-    // }
 
+    const setBoost = async () => {
+        await axios
+            .get('/boosts/getAvailableBoosts')
+            .then((response) => {
+                
+            })
+    }
+    
     // useEffect(() => {
     //     setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
     //     setData();
@@ -96,14 +93,10 @@ const Home = () => {
     const progress = {
         '--progress': getProgress
     }
+
     let modal = new ModalMethods(setOpenModal, openModal)
     Modal.setAppElement('#root');
 
-    const test = [
-        {"name": "test", "description": "sasa", "price": 1000, "time": "навсегда", "logo": <PiBreadLight fontSize={20} style={{marginTop: "3px"}} />}
-    ]
-
-    const [inProp, setInProp] = useState(false);
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -125,7 +118,7 @@ const Home = () => {
                 
                 <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
-                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => {setInProp(true); modal.openModal()}}/>
+                    <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => modal.openModal()}/>
                         <Modal 
                             isOpen={modal.isOpenM()} 
                             onRequestClose={modal.closeModal} 
@@ -139,7 +132,7 @@ const Home = () => {
                                     wrap={true} 
                                     flex={'content'}>
                                 {/* // TODO: Сделать map для всех бустов которые я буду получать с ЗАВОДА */}
-                                <Card actions={actions} style={{width: "100%", margin: "10px 0px"}}>
+                                <Card actions={[<Button type="primary">5 000 <PiBreadLight/></Button>]} style={{width: "100%", margin: "10px 0px"}}>
                                     <Card.Meta
                                         avatar = {<PiBreadLight fontSize={20} style={{marginTop: "3px"}} /> }
                                         title= "Bread"
@@ -148,8 +141,8 @@ const Home = () => {
                                     <p>Время: Навсегда</p>
                                     
                                 </Card>
-                                {test.map(boost => (
-                                    <Card actions={actions} style={{width: "100%", margin: "10px 0px"}}>
+                                {boosts.map(boost => (
+                                    <Card actions={'d'} style={{width: "100%", margin: "10px 0px"}}>
                                         <Card.Meta
                                             avatar = {boost.logo}
                                             title= {boost.name}
