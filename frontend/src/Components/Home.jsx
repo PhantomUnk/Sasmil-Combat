@@ -34,13 +34,13 @@ class ModalMethods{ // class для модального окна
 const Home = () => {
     // * здесь все useState-ы
     const [userData, setUserData] = useState({}); // Данные пользователя
-    const [currentMoney, setScore] = useState(1000); // его деньги
+    const [currentMoney, setScore] = useState(); // его деньги
     const [currentEnergy, setEnergy] = useState(); // его энергмя
-    const [getProgress, setProgress] = useState(); // progress Bar
+    const [getProgress, setProgress] = useState(1000); // progress Bar
     const [openModal, setOpenModal] = useState(false); // useState для модального окна
     const [boosts, setBoosts] = useState(["start"]); // useStaet для бустов
 
-    const styleForModal = { // ! style for Modal
+    const styleForModal = { // * style for Modal
         overlay: {
             backgroundColor: "rgba(120, 120, 120, 0.36)",
             height: "100lvh",
@@ -48,10 +48,11 @@ const Home = () => {
         content:{
             borderRadius: "15px",
             backgroundColor: "#F7F7F7",
+            height: "85lvh",
         }
     }
 
-    const boxStyle = { // ! style для Flex
+    const boxStyle = { // * style для Flex
         position: "relative",
         top: "1rem",
         width: '100%',
@@ -77,7 +78,6 @@ const Home = () => {
                 setEnergy(response.data.energy);
         })
             .catch((error) => console.log(error));
-            console.log(userData);
     }
 
     const setBoost = async () => { // ! Функция для получениея бустов
@@ -87,11 +87,14 @@ const Home = () => {
                 setBoosts(response.data)
             })
     }
-    
+    // TODO: Короче при загрузке страницы прогресс юар не хочет заполнятся надо иправить
+    const test = () => {
+        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`); // устанавливаем прогресс бар в соответсвии с кол-во энергии
+    }
     useEffect(() => { // * Вызываем все функции 1 раз
-        setBoost()
-        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+        setBoost();
         setData();
+        test();
     }, [])
     
     const progress = { // * пеерменная для прогресс бара
