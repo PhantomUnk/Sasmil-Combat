@@ -32,14 +32,15 @@ class ModalMethods{ // class для модального окна
 
 
 const Home = () => {
+    // * здесь все useState-ы
     const [userData, setUserData] = useState({}); // Данные пользователя
     const [currentMoney, setScore] = useState(1000); // его деньги
     const [currentEnergy, setEnergy] = useState(); // его энергмя
     const [getProgress, setProgress] = useState(); // progress Bar
     const [openModal, setOpenModal] = useState(false); // useState для модального окна
-    const [boosts, setBoosts] = useState(["sas"]);
+    const [boosts, setBoosts] = useState(["start"]); // useStaet для бустов
 
-    const styleForModal = { // style for Modal
+    const styleForModal = { // ! style for Modal
         overlay: {
             backgroundColor: "rgba(120, 120, 120, 0.36)",
             height: "100lvh",
@@ -50,14 +51,14 @@ const Home = () => {
         }
     }
 
-    const boxStyle = { // style для Flex
+    const boxStyle = { // ! style для Flex
         position: "relative",
         top: "1rem",
         width: '100%',
         height: '100%',
     };
 
-    const addClick = () => {
+    const addClick = () => { // ! функция по добавлению клика
         setScore((s) => s + 1); // прибавляем очки
         setEnergy((e) => e - 1); // убавляем энергию
         axios.post('/click', {id:11,money: currentMoney + 1, energy: currentEnergy - 1, }).then((response) => {
@@ -66,12 +67,12 @@ const Home = () => {
         setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
     }
 
-    const setData = async () => { // Функция для получения дванных с ЗАВОДА
+    const setData = async () => { // ! Функция для получения данных с ЗАВОДА
         await axios
             .post('/users/getUserData', 11)
             .then((response) => {
                 // проставляем данные
-                setUserData(response.data);
+                setUserData(response.data); 
                 setScore(response.data.money);
                 setEnergy(response.data.energy);
         })
@@ -79,7 +80,7 @@ const Home = () => {
             console.log(userData);
     }
 
-    const setBoost = async () => {
+    const setBoost = async () => { // ! Функция для получениея бустов
         await axios
             .get('/boosts/getAvailableBoosts')
             .then((response) => {
@@ -87,26 +88,26 @@ const Home = () => {
             })
     }
     
-    useEffect(() => {
+    useEffect(() => { // * Вызываем все функции 1 раз
         setBoost()
         setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
         setData();
     }, [])
     
-    const progress = {
+    const progress = { // * пеерменная для прогресс бара
         '--progress': getProgress
     }
 
     let modal = new ModalMethods(setOpenModal, openModal)
-    Modal.setAppElement('#root');
+    Modal.setAppElement('#root'); // ? В документацции так было
 
-    const boostAvatars = {
+    const boostAvatars = { // * Объект название:аватар
         "Bread" : <PiBreadLight fontSize={20} style={{marginTop: "3px"}} />,
         "MultiTap": <TbHandFinger fontSize={20} style={{marginTop: "3px"}}/>,
         "FullBread": <SyncOutlined spin />
     }
 
-    const setBoostAvatar = (name) => {
+    const setBoostAvatar = (name) => { // ! Функция для подставки Аватаров
         return boostAvatars[name]
     }
     return(
@@ -143,7 +144,6 @@ const Home = () => {
                                     align='center' 
                                     wrap={true} 
                                     flex={'content'}>
-                                {/* // TODO: Сделать map для всех бустов которые я буду получать с ЗАВОДА */}
                                 <Card actions={[<Button type="primary">5 000 <PiBreadLight/></Button>]} style={{width: "100%", margin: "10px 0px"}}>
                                     <Card.Meta
                                         avatar = {<PiBreadLight fontSize={20} style={{marginTop: "3px"}} /> }
