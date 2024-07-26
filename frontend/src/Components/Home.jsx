@@ -130,7 +130,7 @@ const Home = () => {
                             isOpen={modal.isOpenM()} 
                             onRequestClose={modal.closeModal} 
                             style={styleForModal}
-                            closeTimeoutMS={3000}
+                            closeTimeoutMS={300}
                         >
                             <Flex
                                     vertical={false} 
