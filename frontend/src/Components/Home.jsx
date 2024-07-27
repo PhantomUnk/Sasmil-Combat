@@ -39,8 +39,10 @@ const Home = () => {
     const [getProgress, setProgressBar] = useState(); // progress Bar
     const [openModal, setOpenModal] = useState(false); // useState для модального окна
     const [boosts, setBoosts] = useState(["start"]); // useStaet для бустов
-    const [maxEnergy, setMaxEnergy] = useState(0);
+    const [maxEnergy, setMaxEnergy] = useState(0); // его максимальная энергия
+    const [userID, setUserID] = useState() // ! Должна быть подключена библиотека telegramm чтобы подставлять id пользователя
 
+    const tg = window.Telegram.WebApp; // ! Для телеграмма
     const styleForModal = { // * style for Modal
         overlay: {
             backgroundColor: "rgba(120, 120, 120, 0.36)",
@@ -81,7 +83,9 @@ const Home = () => {
         })
             .catch((error) => console.log(error));
     }
+
     console.log("progress: "+getProgress);
+
     const setBoost = async () => { // ! Функция для получениея бустов
         await axios
             .get('/boosts/getAvailableBoosts')
@@ -89,12 +93,20 @@ const Home = () => {
                 setBoosts(response.data)
             })
     }
-    // TODO: Сделать чтобы на сервер приходил 1 запрос 
+    
+    const sendPurchase = async (name, time) => {
+        const data = {id: ID, name: name, time: time}
+        await axios
+            .post('/buy/boost', data)
+            .then((response) => {
+                console.log(response.data);
+            })
+    }
 
-    useEffect(() => { // * Вызываем все функции 1 раз
-        setBoost();
-        setData();
-    }, [])
+    // useEffect(() => { // * Вызываем все функции 1 раз
+    //     setBoost();
+    //     setData();
+    // }, [])
 
     useEffect(() => {
         setProgressBar(`${currentEnergy/(maxEnergy/100)}%`)
