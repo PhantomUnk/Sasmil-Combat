@@ -41,7 +41,7 @@ const Home = () => {
     const [boosts, setBoosts] = useState(["start"]); // useStaet для бустов
     const [maxEnergy, setMaxEnergy] = useState(0); // его максимальная энергия
     const [userID, setUserID] = useState() // ! Должна быть подключена библиотека telegramm чтобы подставлять id пользователя
-
+    // TODO: Подключить тг
     const tg = window.Telegram.WebApp; // ! Для телеграмма
     const styleForModal = { // * style for Modal
         overlay: {
@@ -94,6 +94,7 @@ const Home = () => {
             })
     }
     
+    // TODO: Доделать и проверить работоспособность
     const sendPurchase = async (name, time) => {
         const data = {id: ID, name: name, time: time}
         await axios
