@@ -89,13 +89,13 @@ const Home = () => {
                 setBoosts(response.data)
             })
     }
-    // TODO: Сделать чтобы на сервер приходил 1 запрос
+    // TODO: Сделать чтобы на сервер приходил 1 запрос 
 
     useEffect(() => { // * Вызываем все функции 1 раз
         setBoost();
         setData();
-
     }, [])
+
     useEffect(() => {
         setProgressBar(`${currentEnergy/(maxEnergy/100)}%`)
     })
