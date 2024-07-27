@@ -36,9 +36,10 @@ const Home = () => {
     const [userData, setUserData] = useState({}); // Данные пользователя
     const [currentMoney, setScore] = useState(); // его деньги
     const [currentEnergy, setEnergy] = useState(); // его энергмя
-    const [getProgress, setProgress] = useState(1000); // progress Bar
+    const [getProgress, setProgressBar] = useState(); // progress Bar
     const [openModal, setOpenModal] = useState(false); // useState для модального окна
     const [boosts, setBoosts] = useState(["start"]); // useStaet для бустов
+    const [maxEnergy, setMaxEnergy] = useState(0);
 
     const styleForModal = { // * style for Modal
         overlay: {
@@ -65,21 +66,22 @@ const Home = () => {
         axios.post('/click', {id:11,money: currentMoney + 1, energy: currentEnergy - 1, }).then((response) => {
             console.log(response.data);
         })
-        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+        setProgressBar(`${currentEnergy/(maxEnergy/100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
     }
 
     const setData = async () => { // ! Функция для получения данных с ЗАВОДА
         await axios
-            .post('/users/getUserData', 11)
+            .post('/users/getUserData/11')
             .then((response) => {
                 // проставляем данные
                 setUserData(response.data); 
                 setScore(response.data.money);
                 setEnergy(response.data.energy);
+                setMaxEnergy(response.data.MaxEnergy);    
         })
             .catch((error) => console.log(error));
     }
-
+    console.log("progress: "+getProgress);
     const setBoost = async () => { // ! Функция для получениея бустов
         await axios
             .get('/boosts/getAvailableBoosts')
@@ -87,16 +89,16 @@ const Home = () => {
                 setBoosts(response.data)
             })
     }
-    // TODO: Короче при загрузке страницы прогресс юар не хочет заполнятся надо иправить
-    const test = () => {
-        setProgress(`${currentEnergy/(userData.MaxEnergy/100)}%`); // устанавливаем прогресс бар в соответсвии с кол-во энергии
-    }
+    // TODO: Сделать чтобы на сервер приходил 1 запрос
+
     useEffect(() => { // * Вызываем все функции 1 раз
         setBoost();
         setData();
-        test();
+
     }, [])
-    
+    useEffect(() => {
+        setProgressBar(`${currentEnergy/(maxEnergy/100)}%`)
+    })
     const progress = { // * пеерменная для прогресс бара
         '--progress': getProgress
     }
@@ -113,6 +115,7 @@ const Home = () => {
     const setBoostAvatar = (name) => { // ! Функция для подставки Аватаров
         return boostAvatars[name]
     }
+
     return(
         <>
             <Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -132,7 +135,7 @@ const Home = () => {
                     <div className="energy progress-circle" style={progress}></div>
                 </div>
                 
-                <p className="energy-count font-bold text-xl">{currentEnergy}/1000</p>
+                <p className="energy-count font-bold text-xl">{currentEnergy}/{maxEnergy}</p>
                 <Flex className="navigation my-button" vertical={false} justify='space-around' align='center'>
                     <ShoppingCartOutlined  style={{fontSize: 30, color:"#808080", fontWeight: 25}} onClick={() => modal.openModal()}/>
                         <Modal 
@@ -164,7 +167,7 @@ const Home = () => {
                                         title= {boost.name}
                                     />
                                     <p>{boost.description}</p>
-                                    <p>Время: {boost.time == "infinity" ? "Навсегда" : boost.time}</p>
+                                    <p>Время: {boost.time ==="infinity" ? "Навсегда" : boost.time}</p>
                                     
                                 </Card>
                                 ))}
