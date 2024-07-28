@@ -91,8 +91,8 @@ const Home = () => {
 		axios
 			.post('/click', {
 				id: 11,
-				money: currentMoney + 1,
-				energy: currentEnergy - 1,
+				money: currentMoney + userData.CPS,
+				energy: currentEnergy - userData.CPS,
 			})
 			.then(response => {
 				console.log(response.data)
