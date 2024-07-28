@@ -85,8 +85,8 @@ const Home = () => {
 	}
 	const addClick = () => {
 		// ! функция по добавлению клика
-		setScore(s => s + 1) // прибавляем очки
-		setEnergy(e => e - 1) // убавляем энергию
+		setScore(s => s + userData.CPS) // прибавляем очки
+		setEnergy(e => e - userData.CPS) // убавляем энергию
 		axios
 			.post('/click', {
 				id: 11,
@@ -123,7 +123,9 @@ const Home = () => {
 	const sendPurchase = async (name, time, price) => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
-		await axios.post('/boosts/buyBoost', data).then(response => {})
+		await axios.post('/boosts/buyBoost', data).then(response => {
+			console.log(response.data)
+		})
 		setScore(s => s - price)
 	}
 
@@ -181,7 +183,6 @@ const Home = () => {
 				<p className='energy-count font-bold text-xl'>
 					{currentEnergy}/{maxEnergy}
 				</p>
-				<ToastContainer />
 				<Flex
 					className='navigation my-button'
 					vertical={false}
@@ -210,12 +211,7 @@ const Home = () => {
 									actions={[
 										<Button
 											type='primary'
-											onClick={
-												(() => {
-													sendPurchase(boost.name, boost.time, boost.price)
-												},
-												notify)
-											}
+											onClick={() => { sendPurchase(boost.name, boost.time, boost.price); notify() }}
 											disabled={boost.price > currentMoney ? true : false}
 										>
 											{boost.price} <PiBreadLight />
@@ -227,6 +223,7 @@ const Home = () => {
 										avatar={setBoostAvatar(boost.name)}
 										title={boost.name}
 									/>
+									<ToastContainer />
 									<p>{boost.description}</p>
 									<p>
 										Время: {boost.time === 'infinity' ? 'Навсегда' : boost.time}
