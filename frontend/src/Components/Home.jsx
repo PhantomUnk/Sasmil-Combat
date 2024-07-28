@@ -63,6 +63,7 @@ const Home = () => {
 		},
 	}
 
+	// TODO: перейти на dvh dvw
 	const boxStyle = {
 		// * style для Flex
 		position: 'relative',
