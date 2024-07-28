@@ -101,8 +101,6 @@ const Home = () => {
 			.catch(error => console.log(error))
 	}
 
-	console.log('progress: ' + getProgress)
-
 	const setBoost = async () => {
 		// ! Функция для получение бустов
 		await axios.get('/boosts/getAvailableBoosts').then(response => {
@@ -111,24 +109,18 @@ const Home = () => {
 	}
 
 	const sendPurchase = async (name, time, price) => {
-		const data = { "id": ID, "name": name, "time": time, "price": price }
-		setScore(s => s - price)
+		// ! Функция для покупки буста
+		const data = { id: ID, name: name, time: time, price: price }
 		await axios.post('/boosts/buyBoost', data).then(response => {
 			console.log(response.data)
 		})
+		setScore(s => s - price)
 	}
 
-	const userBoosts = async () => {
-		await axios.post(`/boosts/getUserBoosts/${ID}`).then(response => {
-			console.log(response.data)
-		})
-	}
-	
 	useEffect(() => {
 		// * Вызываем все функции 1 раз
 		setBoost()
 		setData()
-		userBoosts()
 	}, [])
 
 	useEffect(() => {
@@ -202,30 +194,15 @@ const Home = () => {
 							wrap={true}
 							flex={'content'}
 						>
-							<Card
-								actions={[
-									<Button type='primary'>
-										5 000 <PiBreadLight />
-									</Button>,
-								]}
-								style={{ width: '100%', margin: '10px 0px' }}
-							>
-								<Card.Meta
-									avatar={
-										<PiBreadLight fontSize={20} style={{ marginTop: '3px' }} />
-									}
-									title='Bread'
-								/>
-								<p>Увеличивает вашу энергию на 1000</p>
-								<p>Время: Навсегда</p>
-							</Card>
-
 							{boosts.map(boost => (
 								<Card
 									actions={[
 										<Button
 											type='primary'
-											onClick={() => sendPurchase(boost.name, boost.time, boost.price)}
+											onClick={() =>
+												sendPurchase(boost.name, boost.time, boost.price)
+											}
+											disabled={boost.price > currentMoney ? true : false}
 										>
 											{boost.price} <PiBreadLight />
 										</Button>,
