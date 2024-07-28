@@ -18,7 +18,7 @@ import { PiBreadLight } from 'react-icons/pi'
 class ModalMethods {
 	// class для модального окна
 	#setOpen // private поле с setter
-	#isOpen // private поле сосотояние окна
+	#isOpen // private поле состояние окна
 	constructor(setOpen, isOpen) {
 		this.#setOpen = setOpen
 		this.#isOpen = isOpen
@@ -42,12 +42,12 @@ const Home = () => {
 	// * здесь все useState-ы
 	const [userData, setUserData] = useState({}) // Данные пользователя
 	const [currentMoney, setScore] = useState() // его деньги
-	const [currentEnergy, setEnergy] = useState() // его энергмя
+	const [currentEnergy, setEnergy] = useState() // его энергия
 	const [getProgress, setProgressBar] = useState() // progress Bar
 	const [openModal, setOpenModal] = useState(false) // useState для модального окна
 	const [boosts, setBoosts] = useState(['start']) // useStaet для бустов
 	const [maxEnergy, setMaxEnergy] = useState(0) // его максимальная энергия
-	const [userID, setUserID] = useState() // ! Должна быть подключена библиотека telegramm чтобы подставлять id пользователя
+	const [ID, setID] = useState(11) // ! Должна быть подключена библиотека telegram чтобы подставлять id пользователя
 	// TODO: Подключить тг
 	const tg = window.Telegram.WebApp // ! Для телеграмма
 	const styleForModal = {
@@ -84,7 +84,7 @@ const Home = () => {
 			.then(response => {
 				console.log(response.data)
 			})
-		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответсвии с кол-во энергии
+		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
 	}
 
 	const setData = async () => {
@@ -104,35 +104,43 @@ const Home = () => {
 	console.log('progress: ' + getProgress)
 
 	const setBoost = async () => {
-		// ! Функция для получениея бустов
+		// ! Функция для получение бустов
 		await axios.get('/boosts/getAvailableBoosts').then(response => {
 			setBoosts(response.data)
 		})
 	}
 
-	// TODO: Доделать и проверить работоспособность
-	const sendPurchase = async (name, time) => {
-		const data = { id: ID, name: name, time: time }
-		await axios.post('/buy/boost', data).then(response => {
+	const sendPurchase = async (name, time, price) => {
+		const data = { "id": ID, "name": name, "time": time, "price": price }
+		setScore(s => s - price)
+		await axios.post('/boosts/buyBoost', data).then(response => {
 			console.log(response.data)
 		})
 	}
 
-	// useEffect(() => { // * Вызываем все функции 1 раз
-	//     setBoost();
-	//     setData();
-	// }, [])
+	const userBoosts = async () => {
+		await axios.post(`/boosts/getUserBoosts/${ID}`).then(response => {
+			console.log(response.data)
+		})
+	}
+	
+	useEffect(() => {
+		// * Вызываем все функции 1 раз
+		setBoost()
+		setData()
+		userBoosts()
+	}, [])
 
 	useEffect(() => {
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`)
 	})
 	const progress = {
-		// * пеерменная для прогресс бара
+		// * переменная для прогресс бара
 		'--progress': getProgress,
 	}
 
 	let modal = new ModalMethods(setOpenModal, openModal)
-	Modal.setAppElement('#root') // ? В документацции так было
+	Modal.setAppElement('#root') // ? В документации так было
 
 	const boostAvatars = {
 		// * Объект название:аватар
@@ -208,14 +216,17 @@ const Home = () => {
 									}
 									title='Bread'
 								/>
-								<p>Увеличивает вашу энегрию на 1000</p>
+								<p>Увеличивает вашу энергию на 1000</p>
 								<p>Время: Навсегда</p>
 							</Card>
 
 							{boosts.map(boost => (
 								<Card
 									actions={[
-										<Button type='primary'>
+										<Button
+											type='primary'
+											onClick={() => sendPurchase(boost.name, boost.time, boost.price)}
+										>
 											{boost.price} <PiBreadLight />
 										</Button>,
 									]}
