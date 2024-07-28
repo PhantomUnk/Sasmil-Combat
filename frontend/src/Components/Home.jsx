@@ -71,6 +71,18 @@ const Home = () => {
 		height: '100%',
 	}
 
+	const notify = () => {
+		toast.success('Буст куплен', {
+			position: 'top-center',
+			autoClose: 1000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			theme: 'light',
+			transition: Bounce,
+		})
+	}
 	const addClick = () => {
 		// ! функция по добавлению клика
 		setScore(s => s + 1) // прибавляем очки
@@ -111,9 +123,7 @@ const Home = () => {
 	const sendPurchase = async (name, time, price) => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
-		await axios.post('/boosts/buyBoost', data).then(response => {
-			console.log(response.data)
-		})
+		await axios.post('/boosts/buyBoost', data).then(response => {})
 		setScore(s => s - price)
 	}
 
@@ -171,6 +181,7 @@ const Home = () => {
 				<p className='energy-count font-bold text-xl'>
 					{currentEnergy}/{maxEnergy}
 				</p>
+				<ToastContainer />
 				<Flex
 					className='navigation my-button'
 					vertical={false}
@@ -199,8 +210,11 @@ const Home = () => {
 									actions={[
 										<Button
 											type='primary'
-											onClick={() =>
-												sendPurchase(boost.name, boost.time, boost.price)
+											onClick={
+												(() => {
+													sendPurchase(boost.name, boost.time, boost.price)
+												},
+												notify)
 											}
 											disabled={boost.price > currentMoney ? true : false}
 										>
