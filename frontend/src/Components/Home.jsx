@@ -85,8 +85,8 @@ const Home = () => {
 	}
 	const addClick = () => {
 		// ! функция по добавлению клика
-		setScore(s => s + userData.CPS) // прибавляем очки
-		setEnergy(e => e - userData.CPS) // убавляем энергию
+		setScore(s => s + 1) // прибавляем очки
+		setEnergy(e => e - 1) // убавляем энергию
 		axios
 			.post('/click', {
 				id: 11,
@@ -123,9 +123,7 @@ const Home = () => {
 	const sendPurchase = async (name, time, price) => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
-		await axios.post('/boosts/buyBoost', data).then(response => {
-			console.log(response.data)
-		})
+		await axios.post('/boosts/buyBoost', data).then(response => {})
 		setScore(s => s - price)
 	}
 
@@ -211,7 +209,12 @@ const Home = () => {
 									actions={[
 										<Button
 											type='primary'
-											onClick={() => { sendPurchase(boost.name, boost.time, boost.price); notify() }}
+											onClick={
+												() => {
+													sendPurchase(boost.name, boost.time, boost.price);
+													notify()
+												}
+											}
 											disabled={boost.price > currentMoney ? true : false}
 										>
 											{boost.price} <PiBreadLight />
@@ -223,19 +226,32 @@ const Home = () => {
 										avatar={setBoostAvatar(boost.name)}
 										title={boost.name}
 									/>
-									<ToastContainer />
 									<p>{boost.description}</p>
 									<p>
 										Время: {boost.time === 'infinity' ? 'Навсегда' : boost.time}
 									</p>
 								</Card>
 							))}
+
 							<button onClick={() => modal.closeModal()}>close</button>
 						</Flex>
 					</Modal>
 					<SettingOutlined style={{ fontSize: 25, color: '#808080' }} />
 				</Flex>
 			</Flex>
+			<ToastContainer
+				position="top-center"
+				autoClose={1000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+				theme="light"
+				transition={Bounce}
+			/>
 		</>
 	)
 }
