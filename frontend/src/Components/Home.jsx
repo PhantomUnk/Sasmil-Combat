@@ -7,7 +7,6 @@ import {
 	SettingOutlined,
 	ShoppingCartOutlined,
 	SyncOutlined,
-	createFromIconfontCN,
 } from '@ant-design/icons' // иконка настроек, корзины
 import { TbHandFinger } from 'react-icons/tb'
 
@@ -15,7 +14,6 @@ import { Bounce, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { PiBreadLight } from 'react-icons/pi'
-import IconDuck from '../Icons/duckIcon'
 
 class ModalMethods {
 	// class для модального окна
@@ -340,10 +338,10 @@ const Home = () => {
 					</Modal>
 					<img
 						src={process.env.PUBLIC_URL + '/duck.svg'}
-						width={"35em"}
+						width={'35em'}
 						alt='duck'
-						onClick={() => createNotify("info", "Скоро будет доступно")}
-						/>
+						onClick={() => createNotify('info', 'Скоро будет доступно')}
+					/>
 					<SettingOutlined
 						style={{ fontSize: 25, color: '#808080' }}
 						onClick={() => settingsModal.openModal()}
