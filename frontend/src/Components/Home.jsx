@@ -44,7 +44,8 @@ const Home = () => {
 	const [currentMoney, setMoney] = useState() // его деньги
 	const [currentEnergy, setEnergy] = useState() // его энергия
 	const [getProgress, setProgressBar] = useState() // progress Bar
-	const [openModal, setOpenModal] = useState(false) // useState для модального окна
+	const [openMarket, setOpenMarket] = useState(false) // useState для модального окна магазина
+	const [openSettings, setOpenSettings] = useState(false) // useState для модального окна настроек
 	const [boosts, setBoosts] = useState(['start']) // useStaet для бустов
 	const [maxEnergy, setMaxEnergy] = useState(0) // его максимальная энергия
 	const [ID, setID] = useState(11) // ! Должна быть подключена библиотека telegram чтобы подставлять id пользователя
@@ -73,31 +74,57 @@ const Home = () => {
 		height: '100%',
 	}
 
-	const notify = () => {
-		toast.success('Буст куплен', {
-			position: 'top-center',
-			autoClose: 1000,
-			hideProgressBar: false,
-			closeOnClick: true,
-			pauseOnHover: true,
-			draggable: true,
-			theme: 'light',
-			transition: Bounce,
-		})
+	const createNotify = (appearance, message) => {
+		switch (appearance) {
+			case 'success':
+				return toast.success(message, {
+					position: 'top-center',
+					autoClose: 1000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					theme: 'light',
+					transition: Bounce,
+				})
+			case 'warn':
+				return toast.warn(message, {
+					position: 'top-center',
+					autoClose: 1000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					theme: 'light',
+					transition: Bounce,
+				})
+			case 'info':
+				return toast.info(message, {
+					position: 'top-center',
+					autoClose: 1000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					theme: 'light',
+					transition: Bounce,
+				})
+			case 'err':
+				return toast.error(message, {
+					position: 'top-center',
+					autoClose: 1000,
+					hideProgressBar: false,
+					closeOnClick: true,
+					pauseOnHover: true,
+					draggable: true,
+					theme: 'light',
+					transition: Bounce,
+				})
+			default:
+				return 'Error'
+		}
 	}
 
-	const notifyBad = () => {
-		toast.warn('2 часа не прошло', {
-			position: 'top-center',
-			autoClose: 1000,
-			hideProgressBar: false,
-			closeOnClick: true,
-			pauseOnHover: true,
-			draggable: true,
-			theme: 'light',
-			transition: Bounce,
-		})
-	}
 	const addClick = () => {
 		// ! функция по добавлению клика
 		setMoney(s => s + userData.CPS) // прибавляем очки
@@ -140,22 +167,22 @@ const Home = () => {
 		const data = { id: ID, name: name, time: time, price: price }
 		if (name === 'Full Energy') {
 			if (userData.Full_Energy) {
-				notify()
+				createNotify('success', 'Буст куплен')
 				await axios.post('/boosts/buyBoost', data)
 				setEnergy(maxEnergy)
 				setMoney(currentMoney - price)
-				document.location.reload()
+				setTimeout(document.location.reload(), 2000)
 			} else {
 				console.log('no no mr Fish')
-				notifyBad()
+				createNotify('warn', '2 часа не прошло')
 			}
 		} else {
 			await axios.post('/boosts/buyBoost', data).then(response => {
 				if (name === 'Energy Limit') {
-					notify()
+					createNotify('success', 'Буст куплен')
 					setMaxEnergy(maxEnergy + 1000)
 				} else if (name === 'MultiTap') {
-					notify()
+					createNotify('success', 'Буст куплен')
 					userData.CPS++
 				}
 			})
@@ -169,12 +196,12 @@ const Home = () => {
 		})
 	}
 
-	useEffect(() => {
-		// * Вызываем все функции 1 раз
-		setBoost()
-		setData()
-		getUserBoosts()
-	}, [])
+	// useEffect(() => {
+	// 	// * Вызываем все функции 1 раз
+	// 	setBoost()
+	// 	setData()
+	// 	getUserBoosts()
+	// }, [])
 
 	useEffect(() => {
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`)
@@ -184,7 +211,9 @@ const Home = () => {
 		'--progress': getProgress,
 	}
 
-	let modal = new ModalMethods(setOpenModal, openModal)
+	let marketModal = new ModalMethods(setOpenMarket, openMarket)
+	let settingsModal = new ModalMethods(setOpenSettings, openSettings)
+
 	Modal.setAppElement('#root') // ? В документации так было
 
 	const boostAvatars = {
@@ -207,7 +236,6 @@ const Home = () => {
 		// ! Функция для подставки Аватаров
 		return boostAvatars[name]
 	}
-	let btn = document.getElementById('Full Energy')
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -241,12 +269,12 @@ const Home = () => {
 					<ShoppingCartOutlined
 						style={{ fontSize: 30, color: '#808080', fontWeight: 25 }}
 						onClick={() => {
-							modal.openModal()
+							marketModal.openModal()
 						}}
 					/>
 					<Modal
-						isOpen={modal.isOpenM()}
-						onRequestClose={modal.closeModal}
+						isOpen={marketModal.isOpenM()}
+						onRequestClose={marketModal.closeModal}
 						style={styleForModal}
 						closeTimeoutMS={300}
 					>
@@ -298,10 +326,29 @@ const Home = () => {
 								</Card>
 							))}
 
-							<Button onClick={() => modal.closeModal()}>close</Button>
+							<Button onClick={() => marketModal.closeModal()}>Close</Button>
 						</Flex>
 					</Modal>
-					<SettingOutlined style={{ fontSize: 25, color: '#808080' }} />
+					<SettingOutlined
+						style={{ fontSize: 25, color: '#808080' }}
+						onClick={() => settingsModal.openModal()}
+					/>
+					<Modal
+						isOpen={settingsModal.isOpenM()}
+						onRequestClose={settingsModal.closeModal}
+						style={styleForModal}
+						closeTimeoutMS={300}
+					>
+						<Flex
+							vertical={false}
+							justify='space-around'
+							align='center'
+							wrap={true}
+							flex={'content'}
+						>
+							<Button onClick={() => settingsModal.closeModal()}>Close</Button>
+						</Flex>
+					</Modal>
 				</Flex>
 			</Flex>
 			<ToastContainer
