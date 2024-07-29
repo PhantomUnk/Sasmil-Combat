@@ -85,6 +85,19 @@ const Home = () => {
 			transition: Bounce,
 		})
 	}
+
+	const notifyBad = () => {
+		toast.warn('2 часа не прошло', {
+			position: 'top-center',
+			autoClose: 1000,
+			hideProgressBar: false,
+			closeOnClick: true,
+			pauseOnHover: true,
+			draggable: true,
+			theme: 'light',
+			transition: Bounce,
+		})
+	}
 	const addClick = () => {
 		// ! функция по добавлению клика
 		setMoney(s => s + userData.CPS) // прибавляем очки
@@ -104,7 +117,7 @@ const Home = () => {
 	const setData = async () => {
 		// ! Функция для получения данных с ЗАВОДА
 		await axios
-			.post('/users/getUserData/11')
+			.post(`/users/getUserData/${ID}`)
 			.then(response => {
 				// проставляем данные
 				setUserData(response.data)
@@ -125,21 +138,42 @@ const Home = () => {
 	const sendPurchase = async (name, time, price) => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
-		await axios.post('/boosts/buyBoost', data).then(response => {
-			if (name === 'Energy Limit') {
-				setMaxEnergy(maxEnergy + 1000)
-			} else if (name === 'Full Energy') {
+		if (name === 'Full Energy') {
+			if (userData.Full_Energy) {
+				notify()
+				await axios.post('/boosts/buyBoost', data)
 				setEnergy(maxEnergy)
-			} else if (name === 'MultiTap') {
-				userData.CPS++;
+				setMoney(currentMoney - price)
+				document.location.reload()
+			} else {
+				console.log('no no mr Fish')
+				notifyBad()
 			}
-		})
-		setMoney(currentMoney - price)
+		} else {
+			await axios.post('/boosts/buyBoost', data).then(response => {
+				if (name === 'Energy Limit') {
+					notify()
+					setMaxEnergy(maxEnergy + 1000)
+				} else if (name === 'MultiTap') {
+					notify()
+					userData.CPS++
+				}
+			})
+			setMoney(currentMoney - price)
+		}
 	}
+
+	const getUserBoosts = async () => {
+		await axios.post(`/boosts/getUserBoosts/${ID}`).then(response => {
+			console.log(response.data)
+		})
+	}
+
 	useEffect(() => {
 		// * Вызываем все функции 1 раз
 		setBoost()
 		setData()
+		getUserBoosts()
 	}, [])
 
 	useEffect(() => {
@@ -173,6 +207,7 @@ const Home = () => {
 		// ! Функция для подставки Аватаров
 		return boostAvatars[name]
 	}
+	let btn = document.getElementById('Full Energy')
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -194,7 +229,6 @@ const Home = () => {
 					/>
 					<div className='energy progress-circle' style={progress}></div>
 				</div>
-
 				<p className='energy-count font-bold text-xl'>
 					{currentEnergy}/{maxEnergy}
 				</p>
@@ -206,7 +240,9 @@ const Home = () => {
 				>
 					<ShoppingCartOutlined
 						style={{ fontSize: 30, color: '#808080', fontWeight: 25 }}
-						onClick={() => modal.openModal()}
+						onClick={() => {
+							modal.openModal()
+						}}
 					/>
 					<Modal
 						isOpen={modal.isOpenM()}
@@ -233,6 +269,7 @@ const Home = () => {
 								<Card
 									actions={[
 										<Button
+											id={boost.name}
 											type='primary'
 											onClick={() => {
 												sendPurchase(
@@ -240,7 +277,6 @@ const Home = () => {
 													boost.time,
 													boostPrices[boost.name]
 												)
-												notify()
 											}}
 											disabled={
 												boostPrices[boost.name] > currentMoney ? true : false
