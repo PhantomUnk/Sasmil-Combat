@@ -41,7 +41,7 @@ class ModalMethods {
 const Home = () => {
 	// * здесь все useState-ы
 	const [userData, setUserData] = useState({}) // Данные пользователя
-	const [currentMoney, setScore] = useState() // его деньги
+	const [currentMoney, setMoney] = useState() // его деньги
 	const [currentEnergy, setEnergy] = useState() // его энергия
 	const [getProgress, setProgressBar] = useState() // progress Bar
 	const [openModal, setOpenModal] = useState(false) // useState для модального окна
@@ -49,6 +49,7 @@ const Home = () => {
 	const [maxEnergy, setMaxEnergy] = useState(0) // его максимальная энергия
 	const [ID, setID] = useState(11) // ! Должна быть подключена библиотека telegram чтобы подставлять id пользователя
 	// TODO: Подключить тг
+	// * формулу цен (lvl * 1000 + 250) + 105% для Bread
 	const tg = window.Telegram.WebApp // ! Для телеграмма
 	const styleForModal = {
 		// * style for Modal
@@ -86,11 +87,11 @@ const Home = () => {
 	}
 	const addClick = () => {
 		// ! функция по добавлению клика
-		setScore(s => s + 1) // прибавляем очки
-		setEnergy(e => e - 1) // убавляем энергию
+		setMoney(s => s + userData.CPS) // прибавляем очки
+		setEnergy(e => e - userData.CPS) // убавляем энергию
 		axios
 			.post('/click', {
-				id: 11,
+				id: ID,
 				money: currentMoney + userData.CPS,
 				energy: currentEnergy - userData.CPS,
 			})
@@ -107,7 +108,7 @@ const Home = () => {
 			.then(response => {
 				// проставляем данные
 				setUserData(response.data)
-				setScore(response.data.money)
+				setMoney(response.data.money)
 				setEnergy(response.data.energy)
 				setMaxEnergy(response.data.MaxEnergy)
 			})
@@ -124,10 +125,17 @@ const Home = () => {
 	const sendPurchase = async (name, time, price) => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
-		await axios.post('/boosts/buyBoost', data).then(response => {})
-		setScore(s => s - price)
+		await axios.post('/boosts/buyBoost', data).then(response => {
+			if (name === 'Energy Limit') {
+				setMaxEnergy(maxEnergy + 1000)
+			} else if (name === 'Full Energy') {
+				setEnergy(maxEnergy)
+			} else if (name === 'MultiTap') {
+				userData.CPS++;
+			}
+		})
+		setMoney(currentMoney - price)
 	}
-
 	useEffect(() => {
 		// * Вызываем все функции 1 раз
 		setBoost()
@@ -147,16 +155,24 @@ const Home = () => {
 
 	const boostAvatars = {
 		// * Объект название:аватар
-		Bread: <PiBreadLight fontSize={20} style={{ marginTop: '3px' }} />,
+		'Energy Limit': <PiBreadLight fontSize={20} style={{ marginTop: '3px' }} />,
 		MultiTap: <TbHandFinger fontSize={20} style={{ marginTop: '3px' }} />,
-		FullBread: <SyncOutlined spin />,
+		'Full Energy': <SyncOutlined spin />,
 	}
-
+	const boostPrices = {
+		'Energy Limit':
+			Math.floor((maxEnergy + 250 + ((maxEnergy + 250) / 100) * 105) / 100) *
+			100,
+		'Full Energy': 1000,
+		MultiTap:
+			Math.floor(
+				(userData.CPS * 100 + 1000 + ((maxEnergy + 500) / 100) * 100) / 100
+			) * 100,
+	}
 	const setBoostAvatar = name => {
 		// ! Функция для подставки Аватаров
 		return boostAvatars[name]
 	}
-
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
@@ -205,20 +221,32 @@ const Home = () => {
 							wrap={true}
 							flex={'content'}
 						>
+							<div className='my-input text-center flex gap-2 px-4 py-1'>
+								<p>{currentMoney}</p>
+								<PiBreadLight
+									fontWeight={'bolder'}
+									fontSize={15}
+									style={{ marginTop: '5px' }}
+								/>
+							</div>
 							{boosts.map(boost => (
 								<Card
 									actions={[
 										<Button
 											type='primary'
-											onClick={
-												() => {
-													sendPurchase(boost.name, boost.time, boost.price);
-													notify()
-												}
+											onClick={() => {
+												sendPurchase(
+													boost.name,
+													boost.time,
+													boostPrices[boost.name]
+												)
+												notify()
+											}}
+											disabled={
+												boostPrices[boost.name] > currentMoney ? true : false
 											}
-											disabled={boost.price > currentMoney ? true : false}
 										>
-											{boost.price} <PiBreadLight />
+											{boostPrices[boost.name]} <PiBreadLight />
 										</Button>,
 									]}
 									style={{ width: '100%', margin: '10px 0px' }}
@@ -234,14 +262,14 @@ const Home = () => {
 								</Card>
 							))}
 
-							<button onClick={() => modal.closeModal()}>close</button>
+							<Button onClick={() => modal.closeModal()}>close</Button>
 						</Flex>
 					</Modal>
 					<SettingOutlined style={{ fontSize: 25, color: '#808080' }} />
 				</Flex>
 			</Flex>
 			<ToastContainer
-				position="top-center"
+				position='top-center'
 				autoClose={1000}
 				hideProgressBar={false}
 				newestOnTop={false}
@@ -250,7 +278,7 @@ const Home = () => {
 				pauseOnFocusLoss
 				draggable
 				pauseOnHover
-				theme="light"
+				theme='light'
 				transition={Bounce}
 			/>
 		</>
