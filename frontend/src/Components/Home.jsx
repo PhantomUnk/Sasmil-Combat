@@ -7,14 +7,16 @@ import {
 	SettingOutlined,
 	ShoppingCartOutlined,
 	SyncOutlined,
+	createFromIconfontCN,
 } from '@ant-design/icons' // иконка настроек, корзины
-
 import { TbHandFinger } from 'react-icons/tb'
 
 import { Bounce, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { PiBreadLight } from 'react-icons/pi'
+import IconDuck from '../Icons/duckIcon'
+
 class ModalMethods {
 	// class для модального окна
 	#setOpen // private поле с setter
@@ -75,6 +77,8 @@ const Home = () => {
 	}
 
 	const createNotify = (appearance, message) => {
+		// ! Функция по созданию алертиков
+		// * принимает в себя вид алерта и сообщение алерта
 		switch (appearance) {
 			case 'success':
 				return toast.success(message, {
@@ -166,17 +170,22 @@ const Home = () => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
 		if (name === 'Full Energy') {
+			// ! Проверяем название буста
 			if (userData.Full_Energy) {
+				// ! проверяем куплен ли
+				// * если не куплен то покупаем
 				createNotify('success', 'Буст куплен')
 				await axios.post('/boosts/buyBoost', data)
 				setEnergy(maxEnergy)
 				setMoney(currentMoney - price)
 				setTimeout(document.location.reload(), 2000)
 			} else {
+				// * если куплен говорим подождать
 				console.log('no no mr Fish')
 				createNotify('warn', '2 часа не прошло')
 			}
 		} else {
+			// * при ином названии буста просто покупаем его
 			await axios.post('/boosts/buyBoost', data).then(response => {
 				if (name === 'Energy Limit') {
 					createNotify('success', 'Буст куплен')
@@ -329,6 +338,12 @@ const Home = () => {
 							<Button onClick={() => marketModal.closeModal()}>Close</Button>
 						</Flex>
 					</Modal>
+					<img
+						src={process.env.PUBLIC_URL + '/duck.svg'}
+						width={"35em"}
+						alt='duck'
+						onClick={() => createNotify("info", "Скоро будет доступно")}
+						/>
 					<SettingOutlined
 						style={{ fontSize: 25, color: '#808080' }}
 						onClick={() => settingsModal.openModal()}
