@@ -16,7 +16,6 @@ import { Bounce, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { PiBreadLight } from 'react-icons/pi'
-import { genActionStyle } from 'antd/es/alert/style'
 
 class ModalMethods {
 	// class для модального окна
@@ -236,11 +235,11 @@ const Home = () => {
 		})
 	}
 	useEffect(() => {
-		// // * Вызываем все функции 1 раз
-		// setBoost()
-		// setData()
-		// // getUserBoosts()
-		// getUserSettings()
+		// * Вызываем все функции 1 раз
+		setBoost()
+		setData()
+		getUserBoosts()
+		getUserSettings()
 		body.style = `--main-color:${
 			getTheme === 0 ? mainStlD['--main-color'] : mainStlL['--main-color']
 		}`
