@@ -2,11 +2,13 @@ import axios from '../axios'
 import React, { useState, useEffect } from 'react'
 import Modal from 'react-modal' // библиотека для модального окна
 
-import { Flex, Card, Button } from 'antd' // импортирую библиотеку ant design
+import { Flex, Card, Button, Switch, ConfigProvider } from 'antd' // импортирую библиотеку ant design
 import {
 	SettingOutlined,
 	ShoppingCartOutlined,
 	SyncOutlined,
+	StarFilled,
+	MoonFilled,
 } from '@ant-design/icons' // иконка настроек, корзины
 import { TbHandFinger } from 'react-icons/tb'
 
@@ -14,6 +16,7 @@ import { Bounce, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { PiBreadLight } from 'react-icons/pi'
+import { genActionStyle } from 'antd/es/alert/style'
 
 class ModalMethods {
 	// class для модального окна
@@ -46,12 +49,30 @@ const Home = () => {
 	const [getProgress, setProgressBar] = useState() // progress Bar
 	const [openMarket, setOpenMarket] = useState(false) // useState для модального окна магазина
 	const [openSettings, setOpenSettings] = useState(false) // useState для модального окна настроек
-	const [boosts, setBoosts] = useState(['start']) // useStaet для бустов
+	const [boosts, setBoosts] = useState([
+		{
+			name: 'MultiTap',
+			time: 'infinity',
+			description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
+		},
+	]) // useStaet для бустов
 	const [maxEnergy, setMaxEnergy] = useState(0) // его максимальная энергия
 	const [ID, setID] = useState(11) // ! Должна быть подключена библиотека telegram чтобы подставлять id пользователя
+	const [getTheme, setTheme] = useState(1)
+	const [lang, setLang] = useState()
 	// TODO: Подключить тг
 	// * формулу цен (lvl * 1000 + 250) + 105% для Bread
 	const tg = window.Telegram.WebApp // ! Для телеграмма
+
+	const mainStlD = {
+		'--main-color': '#17191C',
+		'--text-color': '#E8E8E8',
+	}
+	const mainStlL = {
+		'--main-color': '#ECF0F3',
+		'--text-color': '#6A6A6A',
+	}
+
 	const styleForModal = {
 		// * style for Modal
 		overlay: {
@@ -60,7 +81,8 @@ const Home = () => {
 		},
 		content: {
 			borderRadius: '15px',
-			backgroundColor: '#F7F7F7',
+			border: 'none',
+			backgroundColor: getTheme === 0 ? '#181b20' : '#F7F7F7',
 			height: '85lvh',
 		},
 	}
@@ -74,7 +96,10 @@ const Home = () => {
 		height: '100%',
 	}
 
-	const createNotify = (appearance, message) => {
+	const createNotify = (
+		appearance = 'success',
+		message = 'default message'
+	) => {
 		// ! Функция по созданию алертиков
 		// * принимает в себя вид алерта и сообщение алерта
 		switch (appearance) {
@@ -86,7 +111,7 @@ const Home = () => {
 					closeOnClick: true,
 					pauseOnHover: true,
 					draggable: true,
-					theme: 'light',
+					theme: getTheme === 0 ? 'light' : 'dark',
 					transition: Bounce,
 				})
 			case 'warn':
@@ -97,7 +122,7 @@ const Home = () => {
 					closeOnClick: true,
 					pauseOnHover: true,
 					draggable: true,
-					theme: 'light',
+					theme: getTheme === 0 ? 'dark' : 'light',
 					transition: Bounce,
 				})
 			case 'info':
@@ -108,7 +133,7 @@ const Home = () => {
 					closeOnClick: true,
 					pauseOnHover: true,
 					draggable: true,
-					theme: 'light',
+					theme: getTheme === 0 ? 'dark' : 'light',
 					transition: Bounce,
 				})
 			case 'err':
@@ -119,7 +144,7 @@ const Home = () => {
 					closeOnClick: true,
 					pauseOnHover: true,
 					draggable: true,
-					theme: 'light',
+					theme: getTheme === 0 ? 'dark' : 'light',
 					transition: Bounce,
 				})
 			default:
@@ -141,6 +166,14 @@ const Home = () => {
 				console.log(response.data)
 			})
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
+	}
+
+	const getUserSettings = async () => {
+		// ! Функция для получения настрое
+		await axios.post(`/users/getUserSettings/${ID}`).then(response => {
+			setLang(response.data.language)
+			setTheme(response.data.theme)
+		})
 	}
 
 	const setData = async () => {
@@ -202,13 +235,16 @@ const Home = () => {
 			console.log(response.data)
 		})
 	}
-
-	// useEffect(() => {
-	// 	// * Вызываем все функции 1 раз
-	// 	setBoost()
-	// 	setData()
-	// 	getUserBoosts()
-	// }, [])
+	useEffect(() => {
+		// // * Вызываем все функции 1 раз
+		// setBoost()
+		// setData()
+		// // getUserBoosts()
+		// getUserSettings()
+		body.style = `--main-color:${
+			getTheme === 0 ? mainStlD['--main-color'] : mainStlL['--main-color']
+		}`
+	}, [])
 
 	useEffect(() => {
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`)
@@ -216,6 +252,7 @@ const Home = () => {
 	const progress = {
 		// * переменная для прогресс бара
 		'--progress': getProgress,
+		'--color': getTheme === 0 ? '#FF3F3F' : '#56B6FF',
 	}
 
 	let marketModal = new ModalMethods(setOpenMarket, openMarket)
@@ -225,9 +262,41 @@ const Home = () => {
 
 	const boostAvatars = {
 		// * Объект название:аватар
-		'Energy Limit': <PiBreadLight fontSize={20} style={{ marginTop: '3px' }} />,
-		MultiTap: <TbHandFinger fontSize={20} style={{ marginTop: '3px' }} />,
-		'Full Energy': <SyncOutlined spin />,
+		'Energy Limit': (
+			<PiBreadLight
+				fontSize={20}
+				style={{
+					marginTop: '3px',
+					color:
+						getTheme === 0
+							? mainStlD['--text-color']
+							: mainStlL['--text-color'],
+				}}
+			/>
+		),
+		MultiTap: (
+			<TbHandFinger
+				fontSize={20}
+				style={{
+					marginTop: '3px',
+					color:
+						getTheme === 0
+							? mainStlD['--text-color']
+							: mainStlL['--text-color'],
+				}}
+			/>
+		),
+		'Full Energy': (
+			<SyncOutlined
+				spin
+				style={{
+					color:
+						getTheme === 0
+							? mainStlD['--text-color']
+							: mainStlL['--text-color'],
+				}}
+			/>
+		),
 	}
 	const boostPrices = {
 		'Energy Limit':
@@ -243,38 +312,73 @@ const Home = () => {
 		// ! Функция для подставки Аватаров
 		return boostAvatars[name]
 	}
+	let body = document.getElementsByTagName('body')[0]
+	const Theme = theme => {
+		console.log(theme)
+		if (theme === true) {
+			setTheme(1)
+			createNotify('success', 'Вы поменяли тему на светлую')
+			body.style = `--main-color:${
+				getTheme === 0 ? mainStlL['--main-color'] : mainStlD['--main-color']
+			}`
+			// поменять в бд
+		} else if (theme === false) {
+			setTheme(0)
+			createNotify('success', 'Вы поменяли тему на тёмную')
+			body.style = `--main-color:${
+				getTheme === 0 ? mainStlL['--main-color'] : mainStlD['--main-color']
+			}`
+			// поменять в бд
+		} else {
+			createNotify('err', 'Что-то пошло не так')
+			return 'Error: Unknown theme in Theme function'
+		}
+	}
+	console.log(`language: ${lang}\n Theme: ${getTheme}`)
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
-				<div className='name-field text-center my-input'>
-					<div className='avatar-box my-button'></div>
-					<p>Usre_name</p>
+				<div className={`name-field text-center my-input-${getTheme}`}>
+					<div className={`avatar-box my-button-${getTheme}`}></div>
+					<p style={getTheme === 0 ? mainStlD : mainStlL}>Usre_name</p>
 				</div>
-				<div className='my-input boost-zone text-center'>
-					<p>Boost Zone</p>
+				<div className={`my-input-${getTheme} boost-zone text-center`}>
+					<p style={getTheme === 0 ? mainStlD : mainStlL}>Boost Zone</p>
 				</div>
-				<div className='my-input text-center bread-count'>
-					<p>{currentMoney}</p>
-					<PiBreadLight fontWeight={'bolder'} fontSize={15} />
+				<div className={`my-input-${getTheme} text-center bread-count`}>
+					<p style={getTheme === 0 ? mainStlD : mainStlL}>{currentMoney}</p>
+					<PiBreadLight
+						fontWeight={'bolder'}
+						fontSize={15}
+						style={{
+							color:
+								getTheme === 0
+									? mainStlD['--text-color']
+									: mainStlL['--text-color'],
+						}}
+					/>
 				</div>
-				<div className='main-circle my-input'>
+				<div className={`main-circle my-input-${getTheme}`}>
 					<button
-						className='inner-circle my-button'
+						className={`inner-circle-${getTheme} my-button-${getTheme}`}
 						onClick={() => addClick()}
 					/>
-					<div className='energy progress-circle' style={progress}></div>
+					<div className={`energy progress-circle`} style={progress}></div>
 				</div>
-				<p className='energy-count font-bold text-xl'>
+				<p
+					className='energy-count font-bold text-xl'
+					style={getTheme === 0 ? mainStlD : mainStlL}
+				>
 					{currentEnergy}/{maxEnergy}
 				</p>
 				<Flex
-					className='navigation my-button'
+					className={`navigation my-button-${getTheme}`}
 					vertical={false}
 					justify='space-around'
 					align='center'
 				>
 					<ShoppingCartOutlined
-						style={{ fontSize: 30, color: '#808080', fontWeight: 25 }}
+						style={{ fontSize: 30, color: '#6A6A6A', fontWeight: 25 }}
 						onClick={() => {
 							marketModal.openModal()
 						}}
@@ -292,48 +396,102 @@ const Home = () => {
 							wrap={true}
 							flex={'content'}
 						>
-							<div className='my-input text-center flex gap-2 px-4 py-1'>
-								<p>{currentMoney}</p>
+							<div
+								className={`my-input-${getTheme} text-center flex gap-2 px-4 py-1`}
+							>
+								<p style={getTheme === 0 ? mainStlD : mainStlL}>
+									{currentMoney}
+								</p>
 								<PiBreadLight
 									fontWeight={'bolder'}
 									fontSize={15}
-									style={{ marginTop: '5px' }}
+									style={{
+										marginTop: '5px',
+										color:
+											getTheme === 0
+												? mainStlD['--text-color']
+												: mainStlL['--text-color'],
+									}}
 								/>
 							</div>
 							{boosts.map(boost => (
-								<Card
-									actions={[
-										<Button
-											id={boost.name}
-											type='primary'
-											onClick={() => {
-												sendPurchase(
-													boost.name,
-													boost.time,
-													boostPrices[boost.name]
-												)
-											}}
-											disabled={
-												boostPrices[boost.name] > currentMoney ? true : false
-											}
-										>
-											{boostPrices[boost.name]} <PiBreadLight />
-										</Button>,
-									]}
-									style={{ width: '100%', margin: '10px 0px' }}
+								<ConfigProvider
+									theme={{
+										components: {
+											Card: {
+												actionsBg: getTheme === 0 ? '#2a2e35' : '',
+												colorBorderSecondary:
+													getTheme === 0 ? 'rgb(0, 0, 0)' : '#F0F0F0',
+											},
+										},
+									}}
 								>
-									<Card.Meta
-										avatar={setBoostAvatar(boost.name)}
-										title={boost.name}
-									/>
-									<p>{boost.description}</p>
-									<p>
-										Время: {boost.time === 'infinity' ? 'Навсегда' : boost.time}
-									</p>
-								</Card>
+									<Card
+										actions={[
+											<Button
+												type='primary'
+												onClick={() => {
+													sendPurchase(
+														boost.name,
+														boost.time,
+														boostPrices[boost.name]
+													)
+												}}
+												disabled={
+													boostPrices[boost.name] > currentMoney ? true : false
+												}
+											>
+												<p>{boostPrices[boost.name]}</p>
+												<PiBreadLight
+													style={{
+														color: getTheme === 0 ? 'black' : '',
+													}}
+												/>
+											</Button>,
+										]}
+										style={{
+											width: '100%',
+											margin: '10px 0px',
+											backgroundColor: getTheme === 0 ? '#2a2e35' : '#FFFFFF',
+											border: 'none',
+										}}
+									>
+										<Card.Meta
+											avatar={setBoostAvatar(boost.name)}
+											title={
+												<p
+													style={{
+														color:
+															getTheme === 0
+																? mainStlD['--text-color']
+																: mainStlL['--text-color'],
+													}}
+												>
+													{boost.name}
+												</p>
+											}
+										/>
+										<p style={getTheme === 0 ? mainStlD : mainStlL}>
+											{boost.description}
+										</p>
+										<p style={getTheme === 0 ? mainStlD : mainStlL}>
+											Время:{' '}
+											{boost.time === 'infinity' ? 'Навсегда' : boost.time}
+										</p>
+									</Card>
+								</ConfigProvider>
 							))}
 
-							<Button onClick={() => marketModal.closeModal()}>Close</Button>
+							<Button
+								onClick={() => marketModal.closeModal()}
+								style={{
+									backgroundColor: getTheme === 0 ? '#151515' : '',
+									borderColor: getTheme === 0 ? '#393939' : '',
+									color: getTheme === 0 ? '#E8E8E8' : '',
+								}}
+							>
+								Close
+							</Button>
 						</Flex>
 					</Modal>
 					<img
@@ -343,7 +501,7 @@ const Home = () => {
 						onClick={() => createNotify('info', 'Скоро будет доступно')}
 					/>
 					<SettingOutlined
-						style={{ fontSize: 25, color: '#808080' }}
+						style={{ fontSize: 25, color: '#6A6A6A' }}
 						onClick={() => settingsModal.openModal()}
 					/>
 					<Modal
@@ -353,30 +511,82 @@ const Home = () => {
 						closeTimeoutMS={300}
 					>
 						<Flex
-							vertical={false}
+							vertical={true}
 							justify='space-around'
 							align='center'
-							wrap={true}
+							wrap={false}
 							flex={'content'}
 						>
-							<Button onClick={() => settingsModal.closeModal()}>Close</Button>
+							<Switch
+								checkedChildren={
+									<div className='day'>
+										<div className='sun bg-yellow-200 size-3 rounded-full m-1'></div>
+										<div className='rais bg-blue-300 w-5 h-2 relative right-2.5 rotate-12 bottom-1 blur-sm'></div>
+										<div className='cloud relative -top-4 left-3'>
+											<div className='first bg-white size-2.5 rounded-full'></div>
+											<div className='second bg-white size-2.5 rounded-full relative -left-1.5 -top-1.5'></div>
+											<div className='third bg-white size-2.5 rounded-full relative left-1 -top-4'></div>
+										</div>
+									</div>
+								}
+								unCheckedChildren={
+									<div className='night'>
+										<MoonFilled
+											style={{
+												fontSize: 15,
+												position: 'relative',
+												top: '-35px',
+												left: '0.2rem',
+											}}
+										/>
+										<StarFilled
+											style={{
+												fontSize: 5,
+												position: 'relative',
+												top: '-45px',
+												left: '-1rem',
+											}}
+											className='star'
+										/>
+										<StarFilled
+											style={{
+												fontSize: 4,
+												position: 'relative',
+												top: '-42px',
+												left: '-0.1rem',
+											}}
+											className='star'
+										/>
+										<StarFilled
+											style={{
+												fontSize: 4,
+												position: 'relative',
+												top: '-38px',
+												left: '0.2rem',
+											}}
+											className='star'
+										/>
+									</div>
+								}
+								defaultChecked={getTheme}
+								onChange={() => Theme(!getTheme)}
+							/>
+
+							<Button
+								onClick={() => settingsModal.closeModal()}
+								style={{
+									backgroundColor: getTheme === 0 ? '#151515' : '',
+									borderColor: getTheme === 0 ? '#393939' : '',
+									color: getTheme === 0 ? '#E8E8E8' : '',
+								}}
+							>
+								Close
+							</Button>
 						</Flex>
 					</Modal>
 				</Flex>
 			</Flex>
-			<ToastContainer
-				position='top-center'
-				autoClose={1000}
-				hideProgressBar={false}
-				newestOnTop={false}
-				closeOnClick
-				rtl={false}
-				pauseOnFocusLoss
-				draggable
-				pauseOnHover
-				theme='light'
-				transition={Bounce}
-			/>
+			<ToastContainer />
 		</>
 	)
 }

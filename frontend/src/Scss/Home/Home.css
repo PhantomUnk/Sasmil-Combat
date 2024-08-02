@@ -1,14 +1,14 @@
-html {
-  height: 100%;
-  width: 100%;
+@charset "UTF-8";
+body {
+  background: var(--main-color);
 }
 
-body {
-  background-color: #ECF0F3;
+p {
+  color: var(--text-color);
 }
 
 .name-field {
-  background-color: #ECF0F3;
+  background-color: var(--main-color);
   width: 9.31rem;
   height: 2.69rem;
 }
@@ -56,15 +56,28 @@ body {
   justify-content: center;
   align-items: center;
 }
-.main-circle .inner-circle {
+.main-circle .inner-circle-1 {
   z-index: 1;
   width: 10.75rem;
   height: 10.75rem;
   border-radius: 20rem;
   box-shadow: -0.25rem -0.25rem 1rem 0rem rgba(160, 164, 171, 0.75), 0.38rem 0.38rem 1rem 0rem rgba(160, 164, 171, 0.25);
 }
-.main-circle .inner-circle:active {
-  background-color: #adbfcc;
+.main-circle .inner-circle-1:active {
+  background-color: var(--main-color);
+  filter: brightness(80%);
+}
+.main-circle .inner-circle-0 {
+  z-index: 1;
+  width: 10.75rem;
+  height: 10.75rem;
+  border-radius: 20rem;
+  border-radius: 7.13rem;
+  box-shadow: -0.06rem -0.06rem 0.38rem 0rem rgb(64, 70, 79), 0.06rem 0.06rem 1rem 0rem rgb(12, 13, 15);
+}
+.main-circle .inner-circle-0:active {
+  background-color: var(--main-color);
+  filter: brightness(80%);
 }
 .main-circle .energy {
   position: absolute;
@@ -72,8 +85,7 @@ body {
 
 .progress-circle {
   z-index: -1;
-  --color: #56B6FF;
-  --color-2: #ECF0F3;
+  --color-2: #ecf0f300;
   --circle-size: 5px;
   --border-width: 5px;
   width: 13.44rem;
@@ -125,4 +137,21 @@ body {
 .ReactModal__Overlay--before-close {
   opacity: 0;
   transform: translateY(900px);
+}
+
+.ant-switch-handle::before {
+  z-index: 2;
+}
+
+body > div:nth-child(4) > div > div > div > button.ant-switch.css-dev-only-do-not-override-p8b6i.ant-switch-checked > span {
+  background-color: #4096ff;
+}
+
+body > div:nth-child(4) > div > div > div > button.ant-switch.css-dev-only-do-not-override-p8b6i > span {
+  background-color: rgb(16, 16, 68);
+}
+
+.star {
+  color: rgb(255, 255, 255);
+  text-shadow: 5px 5px 10px #ffffff, 5px -5px 10px #ffffff, -5px 5px 10px #ffffff, -5px -5px 10px #ffffff; /* Верхний - Слева  */
 }/*# sourceMappingURL=Home.css.map */
