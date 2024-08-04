@@ -16,6 +16,13 @@ import { Bounce, ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { PiBreadLight } from 'react-icons/pi'
+import {
+	getUserData,
+	getUserBoosts,
+	setBoost,
+	getUserSettings,
+	setUserSettings,
+} from '../userInf'
 
 class ModalMethods {
 	// class для модального окна
@@ -48,6 +55,14 @@ const Home = () => {
 	const [getProgress, setProgressBar] = useState() // progress Bar
 	const [openMarket, setOpenMarket] = useState(false) // useState для модального окна магазина
 	const [openSettings, setOpenSettings] = useState(false) // useState для модального окна настроек
+	const [maxEnergy, setMaxEnergy] = useState(0) // его максимальная энергия
+	const [ID, setID] = useState(11) // ! Должна быть подключена библиотека telegram чтобы подставлять id пользователя
+
+	const [isSetDataCalled, setIsSetDataCalled] = useState(false)
+	const [isThemeSetCalled, setIsThemeSetCalled] = useState(false)
+
+	const [getTheme, setTheme] = useState()
+	const [lang, setLang] = useState()
 	const [boosts, setBoosts] = useState([
 		{
 			name: 'MultiTap',
@@ -55,10 +70,7 @@ const Home = () => {
 			description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
 		},
 	]) // useStaet для бустов
-	const [maxEnergy, setMaxEnergy] = useState(0) // его максимальная энергия
-	const [ID, setID] = useState(11) // ! Должна быть подключена библиотека telegram чтобы подставлять id пользователя
-	const [getTheme, setTheme] = useState(1)
-	const [lang, setLang] = useState()
+
 	// TODO: Подключить тг
 	// * формулу цен (lvl * 1000 + 250) + 105% для Bread
 	const tg = window.Telegram.WebApp // ! Для телеграмма
@@ -162,38 +174,9 @@ const Home = () => {
 				energy: currentEnergy - userData.CPS,
 			})
 			.then(response => {
-				console.log(response.data)
+				// console.log(response.data)
 			})
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
-	}
-
-	const getUserSettings = async () => {
-		// ! Функция для получения настрое
-		await axios.post(`/users/getUserSettings/${ID}`).then(response => {
-			setLang(response.data.language)
-			setTheme(response.data.theme)
-		})
-	}
-
-	const setData = async () => {
-		// ! Функция для получения данных с ЗАВОДА
-		await axios
-			.post(`/users/getUserData/${ID}`)
-			.then(response => {
-				// проставляем данные
-				setUserData(response.data)
-				setMoney(response.data.money)
-				setEnergy(response.data.energy)
-				setMaxEnergy(response.data.MaxEnergy)
-			})
-			.catch(error => console.log(error))
-	}
-
-	const setBoost = async () => {
-		// ! Функция для получение бустов
-		await axios.get('/boosts/getAvailableBoosts').then(response => {
-			setBoosts(response.data)
-		})
 	}
 
 	const sendPurchase = async (name, time, price) => {
@@ -229,25 +212,35 @@ const Home = () => {
 		}
 	}
 
-	const getUserBoosts = async () => {
-		await axios.post(`/boosts/getUserBoosts/${ID}`).then(response => {
-			console.log(response.data)
-		})
+	const setData = async () => {
+		if (!isSetDataCalled) {
+			getUserData(ID, setUserData, setMoney, setEnergy, setMaxEnergy)
+			getUserBoosts(ID)
+			setBoost(setBoosts)
+			getUserSettings(ID, setLang, setTheme)
+			setIsSetDataCalled(true)
+		}
 	}
-	useEffect(() => {
-		// * Вызываем все функции 1 раз
-		setBoost()
-		setData()
-		getUserBoosts()
-		getUserSettings()
-		body.style = `--main-color:${
-			getTheme === 0 ? mainStlD['--main-color'] : mainStlL['--main-color']
-		}`
-	}, [])
+
+	const progressZone = async () => {
+		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`)
+	}
+
+	const setAvailableTheme = async () => {
+		if ((getTheme != undefined) && (!isThemeSetCalled)) {
+			console.log(`Текущая тема - ${getTheme}`)
+			body.className = `body-${getTheme}`
+			setIsThemeSetCalled(true)
+		}
+	}
 
 	useEffect(() => {
-		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`)
-	})
+		// * Вызываем все функции 1 раз
+		setData()
+		progressZone()
+		setAvailableTheme()
+	}, [currentEnergy, maxEnergy, getTheme])
+
 	const progress = {
 		// * переменная для прогресс бара
 		'--progress': getProgress,
@@ -314,38 +307,38 @@ const Home = () => {
 	let body = document.getElementsByTagName('body')[0]
 	const Theme = theme => {
 		console.log(theme)
-		if (theme === true) {
+		if (theme == true) {
 			setTheme(1)
+			
 			createNotify('success', 'Вы поменяли тему на светлую')
-			body.style = `--main-color:${
-				getTheme === 0 ? mainStlL['--main-color'] : mainStlD['--main-color']
-			}`
+			body.className = `body-${1}`
 			// поменять в бд
-		} else if (theme === false) {
+			setUserSettings(ID, lang, 1)
+		} else if (theme == false) {
 			setTheme(0)
+			
 			createNotify('success', 'Вы поменяли тему на тёмную')
-			body.style = `--main-color:${
-				getTheme === 0 ? mainStlL['--main-color'] : mainStlD['--main-color']
-			}`
+			body.className = `body-${0}`
 			// поменять в бд
+			setUserSettings(ID, lang, 0)
 		} else {
 			createNotify('err', 'Что-то пошло не так')
 			return 'Error: Unknown theme in Theme function'
 		}
 	}
-	console.log(`language: ${lang}\n Theme: ${getTheme}`)
+	//console.log(`language: ${lang}\n Theme: ${getTheme}`)
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
 				<div className={`name-field text-center my-input-${getTheme}`}>
 					<div className={`avatar-box my-button-${getTheme}`}></div>
-					<p style={getTheme === 0 ? mainStlD : mainStlL}>Usre_name</p>
+					<p className={`p-${getTheme}`}>Usre_name</p>
 				</div>
 				<div className={`my-input-${getTheme} boost-zone text-center`}>
-					<p style={getTheme === 0 ? mainStlD : mainStlL}>Boost Zone</p>
+					<p className={`p-${getTheme}`}>Boost Zone</p>
 				</div>
 				<div className={`my-input-${getTheme} text-center bread-count`}>
-					<p style={getTheme === 0 ? mainStlD : mainStlL}>{currentMoney}</p>
+					<p className={`p-${getTheme}`}>{currentMoney}</p>
 					<PiBreadLight
 						fontWeight={'bolder'}
 						fontSize={15}
@@ -364,10 +357,7 @@ const Home = () => {
 					/>
 					<div className={`energy progress-circle`} style={progress}></div>
 				</div>
-				<p
-					className='energy-count font-bold text-xl'
-					style={getTheme === 0 ? mainStlD : mainStlL}
-				>
+				<p className={`energy-count font-bold text-xl p-${getTheme}`}>
 					{currentEnergy}/{maxEnergy}
 				</p>
 				<Flex
@@ -398,9 +388,7 @@ const Home = () => {
 							<div
 								className={`my-input-${getTheme} text-center flex gap-2 px-4 py-1`}
 							>
-								<p style={getTheme === 0 ? mainStlD : mainStlL}>
-									{currentMoney}
-								</p>
+								<p className={`p-${getTheme}`}>{currentMoney}</p>
 								<PiBreadLight
 									fontWeight={'bolder'}
 									fontSize={15}
@@ -440,7 +428,9 @@ const Home = () => {
 													boostPrices[boost.name] > currentMoney ? true : false
 												}
 											>
-												<p>{boostPrices[boost.name]}</p>
+												<p className={`p-${getTheme}`}>
+													{boostPrices[boost.name]}
+												</p>
 												<PiBreadLight
 													style={{
 														color: getTheme === 0 ? 'black' : '',
@@ -457,23 +447,10 @@ const Home = () => {
 									>
 										<Card.Meta
 											avatar={setBoostAvatar(boost.name)}
-											title={
-												<p
-													style={{
-														color:
-															getTheme === 0
-																? mainStlD['--text-color']
-																: mainStlL['--text-color'],
-													}}
-												>
-													{boost.name}
-												</p>
-											}
+											title={<p className={`p-${getTheme}`}>{boost.name}</p>}
 										/>
-										<p style={getTheme === 0 ? mainStlD : mainStlL}>
-											{boost.description}
-										</p>
-										<p style={getTheme === 0 ? mainStlD : mainStlL}>
+										<p className={`p-${getTheme}`}>{boost.description}</p>
+										<p className={`p-${getTheme}`}>
 											Время:{' '}
 											{boost.time === 'infinity' ? 'Навсегда' : boost.time}
 										</p>
