@@ -155,11 +155,11 @@ const Home = () => {
 
 	const setData = async () => {
 		if (!isSetDataCalled) {
-			getUserData(ID, setUserData, setMoney, setEnergy, setMaxEnergy)
-			getUserBoosts(ID)
-			setBoost(setBoosts)
-			getUserSettings(ID, setLang, setTheme)
-			setIsSetDataCalled(true)
+			// getUserData(ID, setUserData, setMoney, setEnergy, setMaxEnergy)
+			// getUserBoosts(ID)
+			// setBoost(setBoosts)
+			// getUserSettings(ID, setLang, setTheme)
+			// setIsSetDataCalled(true)
 		}
 	}
 
