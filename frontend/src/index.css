@@ -42,10 +42,12 @@
 	color: #6a6a6a;
 }
 
+.p-0-price {
+	color: #e8e8e8;
+}
 .p-0 {
 	color: #e8e8e8;
 }
-
 html {
 	width: 100%;
 	height: 100%;
