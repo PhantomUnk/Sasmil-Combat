@@ -2,7 +2,7 @@ import axios from '../axios'
 import React, { useState, useEffect } from 'react'
 import Modal from 'react-modal' // библиотека для модального окна
 
-import { Flex, Card, Button, Switch, ConfigProvider } from 'antd' // импортирую библиотеку ant design
+import { Flex, Card, Button, Switch, ConfigProvider, Select } from 'antd' // импортирую библиотеку ant design
 import {
 	SettingOutlined,
 	ShoppingCartOutlined,
@@ -63,8 +63,9 @@ const Home = () => {
 	const [ID, setID] = useState(11) // * Должна быть подключена библиотека telegram чтобы подставлять id пользователя
 	const [isSetDataCalled, setIsSetDataCalled] = useState(false)
 	const [isThemeSetCalled, setIsThemeSetCalled] = useState(false)
-	const [getTheme, setTheme] = useState() // * Тема пользователя
+	const [getTheme, setTheme] = useState(1) // * Тема пользователя
 	const [lang, setLang] = useState() // * Язык пользователя
+	const [getVibrations, setVibrations] = useState(10) // * Значение для вибрации
 	const [boosts, setBoosts] = useState([
 		{
 			name: 'MultiTap',
@@ -107,19 +108,20 @@ const Home = () => {
 	}
 
 	const addClick = () => {
+		navigator.vibrate(getVibrations)
 		// ! функция по добавлению клика
 		setMoney(s => s + userData.CPS) // прибавляем очки
 		setEnergy(e => e - userData.CPS) // убавляем энергию
-		axios
-			.post('/click', {
-				id: ID,
-				money: currentMoney + userData.CPS,
-				energy: currentEnergy - userData.CPS,
-			})
-			.then(response => {
-				// console.log(response.data)
-			})
-		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
+		// axios
+		// 	.post('/click', {
+		// 		id: ID,
+		// 		money: currentMoney + userData.CPS,
+		// 		energy: currentEnergy - userData.CPS,
+		// 	})
+		// 	.then(response => {
+		// 		// console.log(response.data)
+		// 	})
+		// setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
 	}
 
 	const sendPurchase = async (name, time, price) => {
@@ -145,7 +147,7 @@ const Home = () => {
 				if (name === 'Energy Limit') {
 					createNotify('success', 'Буст куплен', !getTheme)
 					setMaxEnergy(maxEnergy + 1000)
-					setEnergy(maxEnergy+1000)
+					setEnergy(maxEnergy + 1000)
 				} else if (name === 'MultiTap') {
 					createNotify('success', 'Буст куплен', !getTheme)
 					userData.CPS++
@@ -179,7 +181,7 @@ const Home = () => {
 
 	useEffect(() => {
 		// * Вызываем все функции 1 раз
-		setData()
+		// setData()
 		progressZone()
 		setAvailableTheme()
 	}, [currentEnergy, maxEnergy, getTheme])
@@ -236,7 +238,7 @@ const Home = () => {
 			Math.floor(
 				(userData.CPS * 100 + 1000 + ((maxEnergy + 500) / 100) * 100) / 100
 			) * 100,
-		"Null Boost": 1
+		'Null Boost': 1,
 	}
 	const setBoostAvatar = name => {
 		// ! Функция для подставки Аватаров
@@ -271,10 +273,10 @@ const Home = () => {
 					<MyButton theme={getTheme} className={'avatar-box'}></MyButton>
 					<p className={`p-${getTheme}`}>Usre_name</p>
 				</MyInput>
-				<MyInput className='boost-zone text-center'>
+				<MyInput theme={getTheme} className='boost-zone text-center'>
 					<p className={`p-${getTheme}`}>Boost Zone</p>
 				</MyInput>
-				<MyInput className='text-center bread-count'>
+				<MyInput theme={getTheme} className='text-center bread-count'>
 					<p className={`p-${getTheme}`}>{currentMoney}</p>
 					<PiBreadLight
 						fontWeight={'bolder'}
@@ -287,8 +289,9 @@ const Home = () => {
 						}}
 					/>
 				</MyInput>
-				<MyInput className='main-circle'>
+				<MyInput theme={getTheme} className='main-circle'>
 					<MyButton
+						theme={getTheme}
 						className={`inner-circle-${getTheme}`}
 						onClick={() => addClick()}
 					/>
@@ -323,6 +326,7 @@ const Home = () => {
 							flex={'content'}
 						>
 							<MyInput
+								theme={getTheme}
 								className='text-center flex gap-2 px-4 py-1'
 							>
 								<p className={`p-${getTheme}`}>{currentMoney}</p>
@@ -403,12 +407,12 @@ const Home = () => {
 									color: getTheme == 0 ? '#E8E8E8' : '',
 								}}
 							>
-								Close
+								Закрыть
 							</Button>
 						</Flex>
 					</Modal>
 					<img
-						src={process.env.PUBLIC_URL + '/duck.svg'}
+						src={'/duck.svg'}
 						width={'35em'}
 						alt='duck'
 						onClick={() =>
@@ -430,63 +434,117 @@ const Home = () => {
 							justify='space-around'
 							align='center'
 							wrap={false}
-							flex={'content'}
+							style={{
+								width: '100%',
+								height: '50%',
+							}}
 						>
-							<Switch
-								checkedChildren={
-									<div className='day'>
-										<div className='sun bg-yellow-200 size-3 rounded-full m-1'></div>
-										<div className='rais bg-blue-300 w-5 h-2 relative right-2.5 rotate-12 bottom-1 blur-sm'></div>
-										<div className='cloud relative -top-4 left-3'>
-											<div className='first bg-white size-2.5 rounded-full'></div>
-											<div className='second bg-white size-2.5 rounded-full relative -left-1.5 -top-1.5'></div>
-											<div className='third bg-white size-2.5 rounded-full relative left-1 -top-4'></div>
-										</div>
-									</div>
-								}
-								unCheckedChildren={
-									<div className='night'>
-										<MoonFilled
-											style={{
-												fontSize: 15,
-												position: 'relative',
-												top: '-35px',
-												left: '0.2rem',
-											}}
-										/>
-										<StarFilled
-											style={{
-												fontSize: 5,
-												position: 'relative',
-												top: '-45px',
-												left: '-1rem',
-											}}
-											className='star'
-										/>
-										<StarFilled
-											style={{
-												fontSize: 4,
-												position: 'relative',
-												top: '-42px',
-												left: '-0.1rem',
-											}}
-											className='star'
-										/>
-										<StarFilled
-											style={{
-												fontSize: 4,
-												position: 'relative',
-												top: '-38px',
-												left: '0.2rem',
-											}}
-											className='star'
-										/>
-									</div>
-								}
-								defaultChecked={getTheme}
-								onChange={() => Theme(!getTheme)}
-							/>
+							<h1 className={`p-${getTheme}`}>Настройки</h1>
+							<MyInput
+								theme={getTheme}
+								className='language flex w-full h-12 justify-around items-center'
+							>
+								<p className={`p-${getTheme}`}>Поменять язык:</p>
+								<ConfigProvider
+									theme={{
+										components: {
+											Select: {
+												colorBgContainer:
+													getTheme == 0 ? 'rgb(0, 0, 0)' : '#FFFFFF',
+												colorText: getTheme == 0 ? '#E8E8E8' : '',
+												colorBgElevated:
+													getTheme == 0 ? 'rgb(0, 0, 0)' : '#FFFFFF	',
+												colorPrimary: getTheme == 0 ? 'rgb(0, 0, 0)' : '',
+												colorPrimaryHover: getTheme == 0 ? 'rgb(75,75,75)' : '',
+												optionSelectedBg: getTheme == 0 ? 'rgb(75,75,75)' : '',
+												colorTextPlaceholder:
+													getTheme == 0 ? 'rgb(75,75,75)' : '',
+											},
+										},
+									}}
+								>
+									<Select
+										defaultValue={lang}
+										options={[
+											{ value: 'Russian', label: 'Russian' },
+											{ value: 'English', label: 'English' },
+										]}
+									/>
+								</ConfigProvider>
+							</MyInput>
 
+							<MyInput
+								theme={getTheme}
+								className='theme_switch flex w-full h-12 justify-around items-center'
+							>
+								<p className={`p-${getTheme}`}>Поменять тему:</p>
+								<Switch
+									checkedChildren={
+										<div className='day'>
+											<div className='sun bg-yellow-200 size-3 rounded-full m-1'></div>
+											<div className='rais bg-blue-300 w-5 h-2 relative right-2.5 rotate-12 bottom-1 blur-sm'></div>
+											<div className='cloud relative -top-4 left-3'>
+												<div className='first bg-white size-2.5 rounded-full'></div>
+												<div className='second bg-white size-2.5 rounded-full relative -left-1.5 -top-1.5'></div>
+												<div className='third bg-white size-2.5 rounded-full relative left-1 -top-4'></div>
+											</div>
+										</div>
+									}
+									unCheckedChildren={
+										<div className='night'>
+											<MoonFilled
+												style={{
+													fontSize: 15,
+													position: 'relative',
+													top: '-35px',
+													left: '0.2rem',
+												}}
+											/>
+											<StarFilled
+												style={{
+													fontSize: 5,
+													position: 'relative',
+													top: '-45px',
+													left: '-1rem',
+												}}
+												className='star'
+											/>
+											<StarFilled
+												style={{
+													fontSize: 4,
+													position: 'relative',
+													top: '-42px',
+													left: '-0.1rem',
+												}}
+												className='star'
+											/>
+											<StarFilled
+												style={{
+													fontSize: 4,
+													position: 'relative',
+													top: '-38px',
+													left: '0.2rem',
+												}}
+												className='star'
+											/>
+										</div>
+									}
+									defaultChecked={getTheme}
+									onChange={() => Theme(!getTheme)}
+								/>
+							</MyInput>
+
+							<div className='vibration_switch flex w-6/12 h-12 justify-evenly items-center'>
+								<p className={`p-${getTheme}`}>Вибрация</p>
+								<Switch
+									defaultChecked={
+										getVibrations == 0 ? false : true
+									}
+									onChange={() => {
+										getVibrations == 0 ? setVibrations(10) : setVibrations(0)
+									}}
+								/>
+							</div>
 							<Button
 								onClick={() => settingsModal.closeModal()}
 								style={{
@@ -495,7 +553,7 @@ const Home = () => {
 									color: getTheme == 0 ? '#E8E8E8' : '',
 								}}
 							>
-								Close
+								Закрыть
 							</Button>
 						</Flex>
 					</Modal>
