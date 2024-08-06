@@ -25,6 +25,8 @@ import {
 } from './userInf'
 
 import { createNotify } from './notify'
+import { MyButton } from './MyButton'
+import { MyInput } from './MyInput'
 
 class ModalMethods {
 	// * class для модального окна
@@ -128,11 +130,10 @@ const Home = () => {
 			if (userData.Full_Energy) {
 				// ! проверяем куплен ли
 				// * если не куплен то покупаем
-				createNotify('success', 'Буст куплен', getTheme)
+				createNotify('success', 'Буст куплен', !getTheme)
 				await axios.post('/boosts/buyBoost', data)
 				setEnergy(maxEnergy)
 				setMoney(currentMoney - price)
-				setTimeout(document.location.reload(), 2000)
 			} else {
 				// * если куплен говорим подождать
 				console.log('no no mr Fish')
@@ -144,6 +145,7 @@ const Home = () => {
 				if (name === 'Energy Limit') {
 					createNotify('success', 'Буст куплен', !getTheme)
 					setMaxEnergy(maxEnergy + 1000)
+					setEnergy(maxEnergy+1000)
 				} else if (name === 'MultiTap') {
 					createNotify('success', 'Буст куплен', !getTheme)
 					userData.CPS++
@@ -234,6 +236,7 @@ const Home = () => {
 			Math.floor(
 				(userData.CPS * 100 + 1000 + ((maxEnergy + 500) / 100) * 100) / 100
 			) * 100,
+		"Null Boost": 1
 	}
 	const setBoostAvatar = name => {
 		// ! Функция для подставки Аватаров
@@ -261,18 +264,17 @@ const Home = () => {
 			return 'Error: Unknown theme in Theme function'
 		}
 	}
-	//console.log(`language: ${lang}\n Theme: ${getTheme}`)
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
-				<div className={`name-field text-center my-input-${getTheme}`}>
-					<div className={`avatar-box my-button-${getTheme}`}></div>
+				<MyInput theme={getTheme} className='name-field text-center'>
+					<MyButton theme={getTheme} className={'avatar-box'}></MyButton>
 					<p className={`p-${getTheme}`}>Usre_name</p>
-				</div>
-				<div className={`my-input-${getTheme} boost-zone text-center`}>
+				</MyInput>
+				<MyInput className='boost-zone text-center'>
 					<p className={`p-${getTheme}`}>Boost Zone</p>
-				</div>
-				<div className={`my-input-${getTheme} text-center bread-count`}>
+				</MyInput>
+				<MyInput className='text-center bread-count'>
 					<p className={`p-${getTheme}`}>{currentMoney}</p>
 					<PiBreadLight
 						fontWeight={'bolder'}
@@ -284,14 +286,14 @@ const Home = () => {
 									: mainStlL['--text-color'],
 						}}
 					/>
-				</div>
-				<div className={`main-circle my-input-${getTheme}`}>
-					<button
-						className={`inner-circle-${getTheme} my-button-${getTheme}`}
+				</MyInput>
+				<MyInput className='main-circle'>
+					<MyButton
+						className={`inner-circle-${getTheme}`}
 						onClick={() => addClick()}
 					/>
 					<div className={`energy progress-circle`} style={progress}></div>
-				</div>
+				</MyInput>
 				<p className={`energy-count font-bold text-xl p-${getTheme}`}>
 					{currentEnergy}/{maxEnergy}
 				</p>
@@ -320,8 +322,8 @@ const Home = () => {
 							wrap={true}
 							flex={'content'}
 						>
-							<div
-								className={`my-input-${getTheme} text-center flex gap-2 px-4 py-1`}
+							<MyInput
+								className='text-center flex gap-2 px-4 py-1'
 							>
 								<p className={`p-${getTheme}`}>{currentMoney}</p>
 								<PiBreadLight
@@ -335,7 +337,7 @@ const Home = () => {
 												: mainStlL['--text-color'],
 									}}
 								/>
-							</div>
+							</MyInput>
 							{boosts.map(boost => (
 								<ConfigProvider
 									theme={{
