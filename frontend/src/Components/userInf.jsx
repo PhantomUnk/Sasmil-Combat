@@ -36,17 +36,19 @@ export const setBoost = async setBoosts => {
 	})
 }
 
-export const getUserSettings = async (ID, setLang, setTheme) => {
+export const getUserSettings = async (ID, setLang, setTheme, setVibration) => {
 	// * Функция для получения настроек пользователя *
 	await axios.post(`/users/getUserSettings/${ID}`).then(response => {
 		setLang(response.data.language)
 		setTheme(response.data.theme)
+		setVibration(response.data.vibrator)
 	})
 }
 
-export const setUserSettings = async (ID, lang, getTheme) => {
+export const setUserSettings = async (ID, lang, getTheme, getVibration) => {
 	// * Функция бля отправки custom ных настроек определённого пользователя *
-	const data = { id: ID, language: lang, theme: getTheme }
+	const data = { id: ID, language: lang, theme: getTheme, vibrator
+: getVibration }
 	await axios.post(`/users/setUserSettings/`, data).then(response => {
 		return response
 	})
