@@ -28,6 +28,9 @@ import { createNotify } from './notify'
 import { MyButton } from './MyButton'
 import { MyInput } from './MyInput'
 
+import { useTranslation } from 'react-i18next'
+import i18n from '../i18n'
+
 class ModalMethods {
 	// * class для модального окна
 	#setOpen //! private поле с setter
@@ -53,6 +56,7 @@ class ModalMethods {
 
 const Home = () => {
 	// * Здесь все useState-ы
+	const { t } = useTranslation()
 	const [userData, setUserData] = useState({}) // * Данные пользователя
 	const [currentMoney, setMoney] = useState() // * Деньги пользователя
 	const [currentEnergy, setEnergy] = useState() // * Энергия пользователя
@@ -66,6 +70,11 @@ const Home = () => {
 	const [getTheme, setTheme] = useState() // * Тема пользователя
 	const [lang, setLang] = useState() // * Язык пользователя
 	const [getVibrations, setVibrations] = useState() // * Значение для вибрации
+	const [userBoosts, setUserBoots] = useState([{
+		name: 'MultiTap',
+		time: 'infinity',
+		description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
+	}]) // * Все бусты которые есть у пользователя
 	const [boosts, setBoosts] = useState([
 		{
 			name: 'MultiTap',
@@ -132,24 +141,24 @@ const Home = () => {
 			if (userData.Full_Energy) {
 				// ! проверяем куплен ли
 				// * если не куплен то покупаем
-				createNotify('success', 'Буст куплен', !getTheme)
+				createNotify('success', t('Буст куплен'), !getTheme)
 				await axios.post('/boosts/buyBoost', data)
 				setEnergy(maxEnergy)
 				setMoney(currentMoney - price)
 			} else {
 				// * если куплен говорим подождать
 				console.log('no no mr Fish')
-				createNotify('warn', '2 часа не прошло', getTheme)
+				createNotify('warn', t('2 часа не прошло'), getTheme)
 			}
 		} else {
 			// * при ином названии буста просто покупаем его
 			await axios.post('/boosts/buyBoost', data).then(response => {
 				if (name === 'Energy Limit') {
-					createNotify('success', 'Буст куплен', !getTheme)
+					createNotify('success', t('Буст куплен'), !getTheme)
 					setMaxEnergy(maxEnergy + 1000)
 					setEnergy(maxEnergy + 1000)
 				} else if (name === 'MultiTap') {
-					createNotify('success', 'Буст куплен', !getTheme)
+					createNotify('success', t('Буст куплен'), !getTheme)
 					userData.CPS++
 				}
 			})
@@ -160,13 +169,12 @@ const Home = () => {
 	const setData = async () => {
 		if (!isSetDataCalled) {
 			getUserData(ID, setUserData, setMoney, setEnergy, setMaxEnergy)
-			getUserBoosts(ID)
+			getUserBoosts(ID, setUserBoots)
 			setBoost(setBoosts)
 			getUserSettings(ID, setLang, setTheme, setVibrations)
 			setIsSetDataCalled(true)
 		}
 	}
-
 	const progressZone = async () => {
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`)
 	}
@@ -181,6 +189,7 @@ const Home = () => {
 
 	useEffect(() => {
 		// * Вызываем все функции 1 раз
+		i18n.changeLanguage(lang)
 		setData()
 		progressZone()
 		setAvailableTheme()
@@ -251,14 +260,14 @@ const Home = () => {
 			setTheme(theme == false ? 0 : 1)
 			createNotify(
 				'success',
-				`Вы поменяли тему на ${theme == false ? 'тёмную' : 'светлую'}`,
+				t(`Вы поменяли тему на ${theme == false ? 'тёмную' : 'светлую'}`),
 				getTheme
 			)
 			body.className = `body-${theme == false ? 0 : 1}`
 			setUserSettings(ID, lang, theme == false ? 0 : 1, getVibrations)
 		} catch (error) {
 			console.log(error)
-			createNotify('err', 'Что-то пошло не так', getTheme)
+			createNotify('err', t('Что-то пошло не так'), getTheme)
 		}
 	}
 
@@ -267,27 +276,40 @@ const Home = () => {
 			setVibrations(vibration)
 			createNotify(
 				'success',
-				`Вибрация ${vibration == 0 ? 'включена' : 'выключена' }`,
+				t(`Вибрация ${vibration == 0 ? 'включена' : 'выключена'}`),
 				!getTheme
 			)
 			setUserSettings(ID, lang, getTheme, vibration)
 		} catch (error) {
 			console.log(error)
-			createNotify('err', 'Что-то пошло не так', !getTheme)
+			createNotify('err', t('Что-то пошло не так'), !getTheme)
 		}
 	}
+	const fontFamily = () => {
+		return lang == 'arm' ? 'Noto Sans Armenian' : 'Inter'
+	}
+
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
 				<MyInput theme={getTheme} className='name-field text-center'>
 					<MyButton theme={getTheme} className={'avatar-box'}></MyButton>
-					<p className={`p-${getTheme}`}>Usre_name</p>
+					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+						Usre_name
+					</p>
 				</MyInput>
 				<MyInput theme={getTheme} className='boost-zone text-center'>
-					<p className={`p-${getTheme}`}>Boost Zone</p>
+					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+						{t('Зона бустов')}
+					</p>
+					{userBoosts.map(userBoost => (
+						console.log(userBoost)
+					))}
 				</MyInput>
 				<MyInput theme={getTheme} className='text-center bread-count'>
-					<p className={`p-${getTheme}`}>{currentMoney}</p>
+					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+						{currentMoney}
+					</p>
 					<PiBreadLight
 						fontWeight={'bolder'}
 						fontSize={15}
@@ -339,7 +361,12 @@ const Home = () => {
 								theme={getTheme}
 								className='text-center flex gap-2 px-4 py-1'
 							>
-								<p className={`p-${getTheme}`}>{currentMoney}</p>
+								<p
+									style={{ '--font': fontFamily() }}
+									className={`p-${getTheme}`}
+								>
+									{currentMoney}
+								</p>
 								<PiBreadLight
 									fontWeight={'bolder'}
 									fontSize={15}
@@ -379,7 +406,10 @@ const Home = () => {
 													boostPrices[boost.name] > currentMoney ? true : false
 												}
 											>
-												<p className={`p-${getTheme}-price`}>
+												<p
+													style={{ '--font': fontFamily() }}
+													className={`p-${getTheme}-price`}
+												>
 													{boostPrices[boost.name]}
 												</p>
 												<PiBreadLight
@@ -400,10 +430,17 @@ const Home = () => {
 											avatar={setBoostAvatar(boost.name)}
 											title={<p className={`p-${getTheme}`}>{boost.name}</p>}
 										/>
-										<p className={`p-${getTheme}`}>{boost.description}</p>
-										<p className={`p-${getTheme}`}>
-											Время:{' '}
-											{boost.time === 'infinity' ? 'Навсегда' : boost.time}
+										<p
+											style={{ '--font': fontFamily() }}
+											className={`p-${getTheme}`}
+										>
+											{t(boost.description)}
+										</p>
+										<p
+											style={{ '--font': fontFamily() }}
+											className={`p-${getTheme}`}
+										>
+											{t('Время')}: {t(boost.time)}
 										</p>
 									</Card>
 								</ConfigProvider>
@@ -412,12 +449,13 @@ const Home = () => {
 							<Button
 								onClick={() => marketModal.closeModal()}
 								style={{
+									'--font': fontFamily(),
 									backgroundColor: getTheme == 0 ? '#151515' : '',
 									borderColor: getTheme == 0 ? '#393939' : '',
 									color: getTheme == 0 ? '#E8E8E8' : '',
 								}}
 							>
-								Закрыть
+								{t('Закрыть')}
 							</Button>
 						</Flex>
 					</Modal>
@@ -426,7 +464,7 @@ const Home = () => {
 						width={'35em'}
 						alt='duck'
 						onClick={() =>
-							createNotify('info', 'Скоро будет доступно', getTheme)
+							createNotify('info', t('Скоро будет доступно'), getTheme)
 						}
 					/>
 					<SettingOutlined
@@ -449,12 +487,22 @@ const Home = () => {
 								height: '50%',
 							}}
 						>
-							<h1 className={`p-${getTheme}`}>Настройки</h1>
+							<h1
+								style={{ '--font': fontFamily() }}
+								className={`p-${getTheme}`}
+							>
+								{t('Настройки')}
+							</h1>
 							<MyInput
 								theme={getTheme}
 								className='language flex w-full h-12 justify-around items-center'
 							>
-								<p className={`p-${getTheme}`}>Поменять язык:</p>
+								<p
+									style={{ '--font': fontFamily() }}
+									className={`p-${getTheme}`}
+								>
+									{t('Поменять язык:')}
+								</p>
 								<ConfigProvider
 									theme={{
 										components: {
@@ -469,16 +517,26 @@ const Home = () => {
 												optionSelectedBg: getTheme == 0 ? 'rgb(75,75,75)' : '',
 												colorTextPlaceholder:
 													getTheme == 0 ? 'rgb(75,75,75)' : '',
+												colorTextQuaternary: getTheme == 0 ? '#FFFFFF' : '',
 											},
 										},
 									}}
 								>
 									<Select
+										style={{
+											width: '38%',
+										}}
 										defaultValue={lang}
 										options={[
-											{ value: 'Russian', label: 'Russian' },
-											{ value: 'English', label: 'English' },
+											{ value: 'ru', label: 'Russian' },
+											{ value: 'en', label: 'English' },
+											{ value: 'arm', label: 'Armenian' },
 										]}
+										onChange={value => {
+											setLang(value)
+											i18n.changeLanguage(value)
+											setUserSettings(ID, value, getTheme, getVibrations)
+										}}
 									/>
 								</ConfigProvider>
 							</MyInput>
@@ -487,7 +545,12 @@ const Home = () => {
 								theme={getTheme}
 								className='theme_switch flex w-full h-12 justify-around items-center'
 							>
-								<p className={`p-${getTheme}`}>Поменять тему:</p>
+								<p
+									style={{ '--font': fontFamily() }}
+									className={`p-${getTheme}`}
+								>
+									{t('Поменять тему:')}
+								</p>
 								<Switch
 									checkedChildren={
 										<div className='day'>
@@ -545,25 +608,29 @@ const Home = () => {
 							</MyInput>
 
 							<div className='vibration_switch flex w-6/12 h-12 justify-evenly items-center'>
-								<p className={`p-${getTheme}`}>Вибрация</p>
+								<p
+									style={{ '--font': fontFamily() }}
+									className={`p-${getTheme}`}
+								>
+									{t('Вибрация')}
+								</p>
 								<Switch
 									defaultChecked={getVibrations == 0 ? false : true}
 									onChange={() => {
-										Vibration(
-											getVibrations == 0 ? 10 : 0
-										)
+										Vibration(getVibrations == 0 ? 10 : 0)
 									}}
 								/>
 							</div>
 							<Button
 								onClick={() => settingsModal.closeModal()}
 								style={{
+									'--font': fontFamily(),
 									backgroundColor: getTheme == 0 ? '#151515' : '',
 									borderColor: getTheme == 0 ? '#393939' : '',
 									color: getTheme == 0 ? '#E8E8E8' : '',
 								}}
 							>
-								Закрыть
+								{t('Закрыть')}
 							</Button>
 						</Flex>
 					</Modal>
