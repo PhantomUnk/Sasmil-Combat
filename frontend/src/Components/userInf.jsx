@@ -18,14 +18,15 @@ export const getUserData = async (
 			setMaxEnergy(response.data.MaxEnergy)
 		})
 		.catch(error => {
-			return error
+			console.log(error);
+			
 		})
 }
 
-export const getUserBoosts = async ID => {
+export const getUserBoosts = async (ID, setUserBoots) => {
 	// * Функция получения бустов которые есть у пользователя *
 	await axios.post(`/boosts/getUserBoosts/${ID}`).then(response => {
-		return response
+		setUserBoots(response.data)
 	})
 }
 

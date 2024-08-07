@@ -1,4 +1,22 @@
 {
-   "Boost Zone": "Зона Бустов"
-   
+	"Зона бустов": "Boost Zone",
+	"увеличивает максимальное количество хлеба на 1.000.": "Increases the maximum amount of bread by 1,000.",
+	"Полностью восполняет количество хлеба. Можно купить раз в 2 часа.": "Completely replenishes the amount of bread. Can be purchased once every 2 hours.",
+	"Увеличивает количество получаемого хлеба, за одно нажатие.": "Increases the amount of bread received in one click.",
+	"обнуляет бусты пользователя": "Resets user boosts",
+	"Настройки": "Settings",
+	"Закрыть": "Close",
+	"Время": "Time",
+	"Вибрация": "Vibration",
+	"Поменять язык:": "Change language:",
+	"Поменять тему:": "Change theme:",
+	"infinity": "infinity",
+	"Буст куплен": "Boost purchased",
+	"2 часа не прошло": "2 hours have not passed",
+	"Вы поменяли тему на светлую": "You changed the theme to light",
+	"Вы поменяли тему на тёмную": "You changed the theme to dark",
+	"Что-то пошло не так": "Something went wrong",
+	"Вибрация включена": "Vibrate enabled",
+	"Вибрация выключена": "Vibration disabled",
+	"Скоро будет доступно": "Coming soon"
 }

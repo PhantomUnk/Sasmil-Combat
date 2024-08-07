@@ -1,14 +1,5 @@
 @charset "UTF-8";
-body {
-  background: var(--main-color);
-}
-
-p {
-  color: var(--text-color);
-}
-
 .name-field {
-  background-color: var(--main-color);
   width: 9.31rem;
   height: 2.69rem;
 }
