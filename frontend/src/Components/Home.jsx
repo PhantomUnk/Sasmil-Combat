@@ -63,9 +63,9 @@ const Home = () => {
 	const [ID, setID] = useState(11) // * Должна быть подключена библиотека telegram чтобы подставлять id пользователя
 	const [isSetDataCalled, setIsSetDataCalled] = useState(false)
 	const [isThemeSetCalled, setIsThemeSetCalled] = useState(false)
-	const [getTheme, setTheme] = useState(1) // * Тема пользователя
+	const [getTheme, setTheme] = useState() // * Тема пользователя
 	const [lang, setLang] = useState() // * Язык пользователя
-	const [getVibrations, setVibrations] = useState(10) // * Значение для вибрации
+	const [getVibrations, setVibrations] = useState() // * Значение для вибрации
 	const [boosts, setBoosts] = useState([
 		{
 			name: 'MultiTap',
@@ -112,16 +112,16 @@ const Home = () => {
 		// ! функция по добавлению клика
 		setMoney(s => s + userData.CPS) // прибавляем очки
 		setEnergy(e => e - userData.CPS) // убавляем энергию
-		// axios
-		// 	.post('/click', {
-		// 		id: ID,
-		// 		money: currentMoney + userData.CPS,
-		// 		energy: currentEnergy - userData.CPS,
-		// 	})
-		// 	.then(response => {
-		// 		// console.log(response.data)
-		// 	})
-		// setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
+		axios
+			.post('/click', {
+				id: ID,
+				money: currentMoney + userData.CPS,
+				energy: currentEnergy - userData.CPS,
+			})
+			.then(response => {
+				console.log(response.data)
+			})
+		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
 	}
 
 	const sendPurchase = async (name, time, price) => {
@@ -162,7 +162,7 @@ const Home = () => {
 			getUserData(ID, setUserData, setMoney, setEnergy, setMaxEnergy)
 			getUserBoosts(ID)
 			setBoost(setBoosts)
-			getUserSettings(ID, setLang, setTheme)
+			getUserSettings(ID, setLang, setTheme, setVibrations)
 			setIsSetDataCalled(true)
 		}
 	}
@@ -181,7 +181,7 @@ const Home = () => {
 
 	useEffect(() => {
 		// * Вызываем все функции 1 раз
-		// setData()
+		setData()
 		progressZone()
 		setAvailableTheme()
 	}, [currentEnergy, maxEnergy, getTheme])
@@ -244,26 +244,36 @@ const Home = () => {
 		// ! Функция для подставки Аватаров
 		return boostAvatars[name]
 	}
+
 	let body = document.getElementsByTagName('body')[0]
 	const Theme = theme => {
-		console.log(theme)
-		if (theme == true) {
-			setTheme(1)
-
-			createNotify('success', 'Вы поменяли тему на светлую', getTheme)
-			body.className = `body-${1}`
-			// поменять в бд
-			setUserSettings(ID, lang, 1)
-		} else if (theme == false) {
-			setTheme(0)
-
-			createNotify('success', 'Вы поменяли тему на тёмную', getTheme)
-			body.className = `body-${0}`
-			// поменять в бд
-			setUserSettings(ID, lang, 0)
-		} else {
+		try {
+			setTheme(theme == false ? 0 : 1)
+			createNotify(
+				'success',
+				`Вы поменяли тему на ${theme == false ? 'тёмную' : 'светлую'}`,
+				getTheme
+			)
+			body.className = `body-${theme == false ? 0 : 1}`
+			setUserSettings(ID, lang, theme == false ? 0 : 1, getVibrations)
+		} catch (error) {
+			console.log(error)
 			createNotify('err', 'Что-то пошло не так', getTheme)
-			return 'Error: Unknown theme in Theme function'
+		}
+	}
+
+	const Vibration = vibration => {
+		try {
+			setVibrations(vibration)
+			createNotify(
+				'success',
+				`Вибрация ${vibration == 0 ? 'включена' : 'выключена' }`,
+				!getTheme
+			)
+			setUserSettings(ID, lang, getTheme, vibration)
+		} catch (error) {
+			console.log(error)
+			createNotify('err', 'Что-то пошло не так', !getTheme)
 		}
 	}
 	return (
@@ -537,11 +547,11 @@ const Home = () => {
 							<div className='vibration_switch flex w-6/12 h-12 justify-evenly items-center'>
 								<p className={`p-${getTheme}`}>Вибрация</p>
 								<Switch
-									defaultChecked={
-										getVibrations == 0 ? false : true
-									}
+									defaultChecked={getVibrations == 0 ? false : true}
 									onChange={() => {
-										getVibrations == 0 ? setVibrations(10) : setVibrations(0)
+										Vibration(
+											getVibrations == 0 ? 10 : 0
+										)
 									}}
 								/>
 							</div>
