@@ -1,5 +1,5 @@
-import axios from '../axios'
-import React, { useState, useEffect } from 'react'
+import axios from '../../axios'
+import React, { useState, useEffect, useRef } from 'react'
 import Modal from 'react-modal' // библиотека для модального окна
 
 import { Flex, Card, Button, Switch, ConfigProvider, Select } from 'antd' // импортирую библиотеку ant design
@@ -22,14 +22,17 @@ import {
 	setBoost,
 	getUserSettings,
 	setUserSettings,
-} from './userInf'
+} from '../userInf'
 
-import { createNotify } from './notify'
-import { MyButton } from './MyButton'
-import { MyInput } from './MyInput'
+import { createNotify } from '../notify'
+import { MyButton } from '../MyButton'
+import { MyInput } from '../MyInput'
 
 import { useTranslation } from 'react-i18next'
-import i18n from '../i18n'
+import i18n from '../../i18n'
+import { BoostZone } from './BoostZone'
+import { HomeHeader } from './HomeHeader'
+import { Timer } from '../Timer'
 
 class ModalMethods {
 	// * class для модального окна
@@ -58,7 +61,7 @@ const Home = () => {
 	// * Здесь все useState-ы
 	const { t } = useTranslation()
 	const [userData, setUserData] = useState({}) // * Данные пользователя
-	const [currentMoney, setMoney] = useState() // * Деньги пользователя
+	const [currentMoney, setMoney] = useState(0) // * Деньги пользователя
 	const [currentEnergy, setEnergy] = useState() // * Энергия пользователя
 	const [getProgress, setProgressBar] = useState() // * Progress Bar
 	const [openMarket, setOpenMarket] = useState(false) // * состояние для модального окна магазина
@@ -70,11 +73,13 @@ const Home = () => {
 	const [getTheme, setTheme] = useState() // * Тема пользователя
 	const [lang, setLang] = useState() // * Язык пользователя
 	const [getVibrations, setVibrations] = useState() // * Значение для вибрации
-	const [userBoosts, setUserBoots] = useState([{
-		name: 'MultiTap',
-		time: 'infinity',
-		description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
-	}]) // * Все бусты которые есть у пользователя
+	const [userBoosts, setUserBoosts] = useState([
+		{
+			name: 'MultiTap',
+			time: 'infinity',
+			description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
+		},
+	]) // * Все бусты которые есть у пользователя
 	const [boosts, setBoosts] = useState([
 		{
 			name: 'MultiTap',
@@ -133,23 +138,28 @@ const Home = () => {
 		setProgressBar(`${currentEnergy / (maxEnergy / 100)}%`) // устанавливаем прогресс бар в соответствии с кол-во энергии
 	}
 
+	// const FullEner = 0
 	const sendPurchase = async (name, time, price) => {
 		// ! Функция для покупки буста
 		const data = { id: ID, name: name, time: time, price: price }
 		if (name === 'Full Energy') {
 			// ! Проверяем название буста
-			if (userData.Full_Energy) {
-				// ! проверяем куплен ли
-				// * если не куплен то покупаем
-				createNotify('success', t('Буст куплен'), !getTheme)
-				await axios.post('/boosts/buyBoost', data)
-				setEnergy(maxEnergy)
-				setMoney(currentMoney - price)
-			} else {
-				// * если куплен говорим подождать
-				console.log('no no mr Fish')
-				createNotify('warn', t('2 часа не прошло'), getTheme)
-			}
+			// if (userData.Full_Energy) {
+			// ! проверяем куплен ли
+			// * если не куплен то покупаем
+
+			createNotify('success', t('Буст куплен'), !getTheme)
+			await axios.post('/boosts/buyBoost', data)
+			setEnergy(maxEnergy)
+			setMoney(currentMoney - price)
+			getUserBoosts(ID, setUserBoosts)
+			return true
+			// } else {
+			// 	// * если куплен говорим подождать
+			// 	console.log('no no mr Fish')
+			// 	createNotify('warn', t('2 часа не прошло'), getTheme)
+			// 	return false
+			// }
 		} else {
 			// * при ином названии буста просто покупаем его
 			await axios.post('/boosts/buyBoost', data).then(response => {
@@ -163,13 +173,14 @@ const Home = () => {
 				}
 			})
 			setMoney(currentMoney - price)
+			getUserBoosts(ID, setUserBoosts)
 		}
 	}
 
 	const setData = async () => {
 		if (!isSetDataCalled) {
 			getUserData(ID, setUserData, setMoney, setEnergy, setMaxEnergy)
-			getUserBoosts(ID, setUserBoots)
+			getUserBoosts(ID, setUserBoosts)
 			setBoost(setBoosts)
 			getUserSettings(ID, setLang, setTheme, setVibrations)
 			setIsSetDataCalled(true)
@@ -292,23 +303,26 @@ const Home = () => {
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
-				<MyInput theme={getTheme} className='name-field text-center'>
-					<MyButton theme={getTheme} className={'avatar-box'}></MyButton>
-					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
-						Usre_name
-					</p>
-				</MyInput>
-				<MyInput theme={getTheme} className='boost-zone text-center'>
-					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
-						{t('Зона бустов')}
-					</p>
-					{userBoosts.map(userBoost => (
-						console.log(userBoost)
-					))}
-				</MyInput>
+				{/* Header */}
+				<HomeHeader
+					getTheme={getTheme}
+					fontFamily={fontFamily}
+					name={'Samik'}
+				/>
+
+				{/* <boost zone> */}
+				<BoostZone
+					getTheme={getTheme}
+					fontFamily={fontFamily}
+					t={t}
+					setBoostAvatar={setBoostAvatar}
+					userBoosts={userBoosts}
+					setUserBoosts={setUserBoosts}
+				/>
+
 				<MyInput theme={getTheme} className='text-center bread-count'>
 					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
-						{currentMoney}
+						{currentMoney.toLocaleString()}
 					</p>
 					<PiBreadLight
 						fontWeight={'bolder'}
@@ -321,6 +335,7 @@ const Home = () => {
 						}}
 					/>
 				</MyInput>
+
 				<MyInput theme={getTheme} className='main-circle'>
 					<MyButton
 						theme={getTheme}
