@@ -18,8 +18,7 @@ export const getUserData = async (
 			setMaxEnergy(response.data.MaxEnergy)
 		})
 		.catch(error => {
-			console.log(error);
-			
+			console.log(error)
 		})
 }
 
@@ -48,9 +47,24 @@ export const getUserSettings = async (ID, setLang, setTheme, setVibration) => {
 
 export const setUserSettings = async (ID, lang, getTheme, getVibration) => {
 	// * Функция бля отправки custom ных настроек определённого пользователя *
-	const data = { id: ID, language: lang, theme: getTheme, vibrator
-: getVibration }
+	const data = {
+		id: String(ID),
+		language: lang,
+		theme: getTheme,
+		vibrator: getVibration,
+	}
 	await axios.post(`/users/setUserSettings/`, data).then(response => {
 		return response
 	})
+}
+
+export const userLink = async ID => {
+	await axios
+		.post(`/users/generateRefLink/${ID}`)
+		.then(response => {
+			console.log(response.data)
+		})
+		.catch(err => {
+			console.log(err + ' ' + 'fuck blyt in userInf.userLink')
+		})
 }
