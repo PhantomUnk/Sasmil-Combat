@@ -1,14 +1,14 @@
-import { MyInput } from '../MyInput'
+import { MyInput } from '../Ui/MyInput'
 import { useState } from 'react'
-import { MyButton } from '../MyButton'
+import { MyButton } from '../Ui/MyButton'
 import { Flex } from 'antd'
-import { Timer } from '../Timer'
+import { Timer } from '../Ui/Timer'
 
 export const BoostZone = ({
 	getTheme,
 	fontFamily,
 	t,
-	setBoostAvatar,
+	boostAvatars,
 	userBoosts,
 	setUserBoosts,
 }) => {
@@ -20,8 +20,6 @@ export const BoostZone = ({
 		return res
 	}
 
-	const [gotOut, setGotOut] = useState(false)
-
 	const gotOuted = name => {
 		setUserBoosts(userBoosts.filter(el => el.name !== name))
 	}
@@ -30,8 +28,6 @@ export const BoostZone = ({
 	const sortedUserBoosts = userBoosts.filter(
 		({ name }) => !table[name] && (table[name] = 1)
 	)
-
-	console.log(gotOut)
 
 	return (
 		<MyInput theme={getTheme} className='boost-zone text-center'>
@@ -51,13 +47,17 @@ export const BoostZone = ({
 						className='card size-12 bg-slate-300 text-center m-2 '
 					>
 						<div className='inner-boost-card flex justify-center flex-col items-center'>
-							{setBoostAvatar(userBoost.name)}
-							<p>lvl {getBoostLvl(userBoost.name)}</p>
+							{boostAvatars[userBoost.name]}
+							<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+								lvl {getBoostLvl(userBoost.name)}
+							</p>
 							{userBoost.time !== 'infinity' ? (
 								<Timer
 									seconds={Number(userBoost.time)}
 									boostName={userBoost.name}
 									gotOuted={gotOuted}
+									getTheme={getTheme}
+									fontFamily={fontFamily}
 								/>
 							) : (
 								''

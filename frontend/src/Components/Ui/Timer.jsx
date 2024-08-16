@@ -1,6 +1,12 @@
 import { useRef, useState, useEffect } from 'react'
 
-export const Timer = ({ seconds, boostName, gotOuted }) => {
+export const Timer = ({
+	seconds,
+	boostName,
+	gotOuted,
+	getTheme,
+	fontFamily,
+}) => {
 	const Ref = useRef(null)
 
 	const [timer, setTimer] = useState('00:00:20')
@@ -28,10 +34,9 @@ export const Timer = ({ seconds, boostName, gotOuted }) => {
 					':' +
 					(seconds > 9 ? seconds : '0' + seconds)
 			)
-		}
-		else {
+		} else {
 			gotOuted(boostName)
-		} 
+		}
 	}
 
 	const clearTimer = e => {
@@ -54,5 +59,9 @@ export const Timer = ({ seconds, boostName, gotOuted }) => {
 		return () => clearInterval(Ref.current)
 	}, [seconds])
 
-	return <div>{timer}</div>
+	return (
+		<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+			{timer}
+		</p>
+	)
 }

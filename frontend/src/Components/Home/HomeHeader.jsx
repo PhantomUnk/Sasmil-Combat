@@ -1,7 +1,7 @@
-import { MyInput } from "../MyInput"
-import { MyButton } from "../MyButton"
+import { MyInput } from '../Ui/MyInput'
+import { MyButton } from '../Ui/MyButton'
 
-export const HomeHeader = ({getTheme, fontFamily, name}) => {
+export const HomeHeader = ({ getTheme, fontFamily, name }) => {
 	return (
 		<MyInput theme={getTheme} className='name-field text-center'>
 			<MyButton theme={getTheme} className={'avatar-box'}></MyButton>
