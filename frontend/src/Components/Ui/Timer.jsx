@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
+import { P } from './P'
 
 export const Timer = ({
 	seconds,
@@ -60,8 +61,8 @@ export const Timer = ({
 	}, [seconds])
 
 	return (
-		<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+		<P fontFamily={fontFamily} getTheme={getTheme}>
 			{timer}
-		</p>
+		</P>
 	)
 }

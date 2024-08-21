@@ -4,6 +4,7 @@ import { TbHandFinger } from 'react-icons/tb'
 import { Card, Flex, Button, ConfigProvider } from 'antd'
 import Modal from 'react-modal'
 import { MyInput } from '../Ui/MyInput'
+import { P } from '../Ui/P'
 
 export const Market = ({
 	styleForModal,
@@ -69,7 +70,7 @@ export const Market = ({
 			isOpen={marketModal.isOpenM()}
 			onRequestClose={marketModal.closeModal}
 			style={styleForModal}
-			closeTimeoutMS={300}
+			closeTimeoutMS={200}
 		>
 			<Flex
 				vertical={false}
@@ -79,9 +80,9 @@ export const Market = ({
 				flex={'content'}
 			>
 				<MyInput theme={getTheme} className='text-center flex gap-2 px-4 py-1'>
-					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+					<P fontFamily={fontFamily} getTheme={getTheme}>
 						{currentMoney}
-					</p>
+					</P>
 					<PiBreadLight
 						fontWeight={'bolder'}
 						fontSize={15}
@@ -123,13 +124,17 @@ export const Market = ({
 								>
 									<p
 										style={{ '--font': fontFamily() }}
-										className={`p-${getTheme}-price`}
+										className={`p-t-${getTheme} price ${
+											boostPrices[boost.name] > currentMoney
+												? 'disable'
+												: 'enable'
+										}`}
 									>
 										{boostPrices[boost.name]}
 									</p>
 									<PiBreadLight
 										style={{
-											color: getTheme == 0 ? 'black' : '',
+											color: getTheme == 0 ? mainStlD['--text-color'] : '',
 										}}
 									/>
 								</Button>,
@@ -143,14 +148,18 @@ export const Market = ({
 						>
 							<Card.Meta
 								avatar={boostAvatars[boost.name]}
-								title={<p className={`p-${getTheme}`}>{boost.name}</p>}
+								title={
+									<P fontFamily={fontFamily} getTheme={getTheme}>
+										{boost.name}
+									</P>
+								}
 							/>
-							<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+							<P fontFamily={fontFamily} getTheme={getTheme}>
 								{t(boost.description)}
-							</p>
-							<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+							</P>
+							<P fontFamily={fontFamily} getTheme={getTheme}>
 								{t('Время')}: {t(boost.time)}
-							</p>
+							</P>
 						</Card>
 					</ConfigProvider>
 				))}

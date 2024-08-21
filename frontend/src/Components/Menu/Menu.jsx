@@ -12,7 +12,7 @@ import { BsPeople } from 'react-icons/bs'
 import { ModalMethods } from './MethodsForModal'
 import { Friends } from './Friends'
 
-export const Unnamed = ({
+export const Menu = ({
 	getTheme,
 	mainStlD,
 	mainStlL,
@@ -30,6 +30,9 @@ export const Unnamed = ({
 	i18n,
 	setVibrations,
 	setTheme,
+	link,
+	setLink,
+	friends,
 }) => {
 	const [openSettings, setOpenSettings] = useState(false) // * состояние для модального окна настроек
 	const [openMarket, setOpenMarket] = useState(false) // * состояние для модального окна магазина
@@ -97,7 +100,10 @@ export const Unnamed = ({
 				friendsModal={friendsModal}
 				fontFamily={fontFamily}
 				t={t}
+				link={link}
+				setLink={setLink}
 				ID={ID}
+				friends={friends}
 			/>
 
 			<img

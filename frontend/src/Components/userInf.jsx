@@ -58,13 +58,24 @@ export const setUserSettings = async (ID, lang, getTheme, getVibration) => {
 	})
 }
 
-export const userLink = async ID => {
+export const userLink = async (ID, isCheck, setLink) => {
 	await axios
-		.post(`/users/generateRefLink/${ID}`)
+		.post(`/users/generateRefLink/${ID}/${isCheck}`)
 		.then(response => {
-			console.log(response.data)
+			setLink(response.data)
 		})
 		.catch(err => {
 			console.log(err + ' ' + 'fuck blyt in userInf.userLink')
+		})
+}
+
+export const userFriends = async (ID, setFriends) => {
+	await axios
+		.post(`/users/getReferalFriends/${ID} `)
+		.then(response => {
+			setFriends(response.data)
+		})
+		.catch(err => {
+			console.log(err + ' ' + 'fuck blyt in userInf.userFriends')
 		})
 }
