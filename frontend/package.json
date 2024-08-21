@@ -15,6 +15,7 @@
     "@testing-library/user-event": "^13.5.0",
     "antd": "^5.19.2",
     "axios": "^1.7.2",
+    "current-device": "^0.10.2",
     "i18next": "^23.12.2",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.5.2",

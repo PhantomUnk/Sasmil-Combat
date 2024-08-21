@@ -30,6 +30,7 @@ import { HomeHeader } from './HomeHeader'
 import { Menu } from '../Menu/Menu'
 import { MyTapButton } from '../Ui/MyTapButton'
 import { P } from '../Ui/P'
+import device from 'current-device'
 
 const Home = () => {
 	// * Здесь все useState-ы
@@ -42,7 +43,6 @@ const Home = () => {
 	const [currentEnergy, setEnergy] = useState() // * Энергия пользователя
 	const [getProgress, setProgressBar] = useState() // * Progress Bar
 	const [maxEnergy, setMaxEnergy] = useState(0) // * Максимальная энергия пользователя
-	// const [ID, setID] = useState() // * Должна быть подключена библиотека telegram чтобы подставлять id пользователя
 	const [isSetDataCalled, setIsSetDataCalled] = useState(false)
 	const [isThemeSetCalled, setIsThemeSetCalled] = useState(false)
 	const [getTheme, setTheme] = useState() // * Тема пользователя
@@ -73,9 +73,9 @@ const Home = () => {
 		},
 	]) // * useStaet для бустов
 
-	// TODO: Подключить тг
 	const tg = window.Telegram.WebApp // ! Для телеграмма
-	const ID = tg.initDataUnsafe.user.id
+	const ID =  11 //tg.initDataUnsafe.user.id
+	const device = require('current-device').default
 
 	const mainStlD = {
 		'--text-color': '#E8E8E8',
@@ -84,7 +84,6 @@ const Home = () => {
 		'--text-color': '#6A6A6A',
 	}
 
-	// TODO: перейти на dvh dvw
 	const boxStyle = {
 		// * style для Flex
 		position: 'relative',
@@ -163,7 +162,7 @@ const Home = () => {
 	}
 
 	const setAvailableTheme = async () => {
-		if (getTheme != undefined && !isThemeSetCalled) {
+		if (getTheme !== undefined && !isThemeSetCalled) {
 			console.log(`Текущая тема - ${getTheme}`)
 			body.className = `body-${getTheme}`
 			setIsThemeSetCalled(true)
@@ -198,7 +197,7 @@ const Home = () => {
 				style={{
 					marginTop: '3px',
 					color:
-						getTheme == 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+						getTheme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
 				}}
 			/>
 		),
@@ -208,7 +207,7 @@ const Home = () => {
 				style={{
 					marginTop: '3px',
 					color:
-						getTheme == 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+						getTheme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
 				}}
 			/>
 		),
@@ -217,14 +216,14 @@ const Home = () => {
 				spin
 				style={{
 					color:
-						getTheme == 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+						getTheme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
 				}}
 			/>
 		),
 	}
 
 	const fontFamily = () => {
-		return lang == 'arm' ? 'Noto Sans Armenian' : 'Inter'
+		return lang === 'arm' ? 'Noto Sans Armenian' : 'Inter'
 	}
 
 	useEffect(() => {
@@ -247,7 +246,7 @@ const Home = () => {
 				<HomeHeader
 					getTheme={getTheme}
 					fontFamily={fontFamily}
-					name={tg.initDataUnsafe.user.first_name}
+					name={'tg.initDataUnsafe.user.first_name'}
 				/>
 
 				{/* //*|-----------------------------------------|
@@ -272,7 +271,7 @@ const Home = () => {
 						fontSize={15}
 						style={{
 							color:
-								getTheme == 0
+								getTheme === 0
 									? mainStlD['--text-color']
 									: mainStlL['--text-color'],
 						}}
@@ -282,11 +281,12 @@ const Home = () => {
 				<MyInput theme={getTheme} className='main-circle'>
 					<MyTapButton
 						theme={getTheme}
-						className={`inner-circle-${getTheme}`}
+						className={`inner-circle-${getTheme} tap`}
 						onClick={addClick}
 						click={userData.CPS}
 						currentEnergy={currentEnergy}
 						CPS={userData.CPS}
+						device={device}
 					/>
 					<div className={`energy progress-circle`} style={progress}></div>
 				</MyInput>
@@ -299,7 +299,7 @@ const Home = () => {
 					<ThunderboltOutlined
 						style={{
 							color:
-								getTheme == 0
+								getTheme === 0
 									? mainStlD['--text-color']
 									: mainStlL['--text-color'],
 							fontWeight: 'bold',
