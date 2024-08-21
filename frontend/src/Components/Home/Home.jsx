@@ -1,6 +1,7 @@
 import axios from '../../axios'
 import React, { useState, useEffect } from 'react'
 
+import { ThunderboltOutlined } from '@ant-design/icons'
 import { Flex } from 'antd' // импортирую библиотеку ant design
 import { SyncOutlined } from '@ant-design/icons' // иконка настроек, корзины
 import { TbHandFinger } from 'react-icons/tb'
@@ -15,54 +16,66 @@ import {
 	setBoost,
 	getUserSettings,
 	setUserSettings,
+	userLink,
+	userFriends,
 } from '../userInf'
 
 import { createNotify } from '../Ui/notify'
-import { MyButton } from '../Ui/MyButton'
 import { MyInput } from '../Ui/MyInput'
 
 import { useTranslation } from 'react-i18next'
 import i18n from '../../i18n'
 import { BoostZone } from './BoostZone'
 import { HomeHeader } from './HomeHeader'
-import { Unnamed } from '../Menu/Menu'
-import { pop } from '../Particle'
+import { Menu } from '../Menu/Menu'
 import { MyTapButton } from '../Ui/MyTapButton'
+import { P } from '../Ui/P'
 
 const Home = () => {
 	// * Здесь все useState-ы
 	let body = document.getElementsByTagName('body')[0]
 
 	const { t } = useTranslation()
+	const [link, setLink] = useState()
 	const [userData, setUserData] = useState({}) // * Данные пользователя
 	const [currentMoney, setMoney] = useState(0) // * Деньги пользователя
 	const [currentEnergy, setEnergy] = useState() // * Энергия пользователя
 	const [getProgress, setProgressBar] = useState() // * Progress Bar
-
 	const [maxEnergy, setMaxEnergy] = useState(0) // * Максимальная энергия пользователя
-	const [ID, setID] = useState(11) // * Должна быть подключена библиотека telegram чтобы подставлять id пользователя
+	// const [ID, setID] = useState() // * Должна быть подключена библиотека telegram чтобы подставлять id пользователя
 	const [isSetDataCalled, setIsSetDataCalled] = useState(false)
 	const [isThemeSetCalled, setIsThemeSetCalled] = useState(false)
 	const [getTheme, setTheme] = useState() // * Тема пользователя
 	const [lang, setLang] = useState() // * Язык пользователя
 	const [getVibrations, setVibrations] = useState() // * Значение для вибрации
+	const [friends, setFriends] = useState([
+		{
+			id: 20,
+			money: 7000,
+			refID: '11',
+			userFirstname: 'Боеголовка',
+			userID: '6183471833',
+			userLastname: 'Боеголовка',
+		},
+	])
 	const [userBoosts, setUserBoosts] = useState([
 		{
 			name: 'MultiTap',
 			time: 'infinity',
-			description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
+			description: 'Самвел хороший мальчик, но немного хуесос',
 		},
 	]) // * Все бусты которые есть у пользователя
 	const [boosts, setBoosts] = useState([
 		{
 			name: 'MultiTap',
 			time: 'infinity',
-			description: 'In esse ad excepteur amet eu aliqua enim pariatur non.',
+			description: 'Самвел хороший мальчик, но немного хуесос',
 		},
 	]) // * useStaet для бустов
 
 	// TODO: Подключить тг
 	const tg = window.Telegram.WebApp // ! Для телеграмма
+	const ID = tg.initDataUnsafe.user.id
 
 	const mainStlD = {
 		'--text-color': '#E8E8E8',
@@ -141,6 +154,8 @@ const Home = () => {
 			setBoost(setBoosts)
 			getUserSettings(ID, setLang, setTheme, setVibrations)
 			setIsSetDataCalled(true)
+			userLink(ID, true, setLink)
+			userFriends(ID, setFriends)
 		}
 	}
 	const progressZone = async () => {
@@ -211,18 +226,33 @@ const Home = () => {
 	const fontFamily = () => {
 		return lang == 'arm' ? 'Noto Sans Armenian' : 'Inter'
 	}
-	
+
+	useEffect(() => {
+		// найс
+		if (currentEnergy < maxEnergy) {
+			var timer = setTimeout(() => {
+				setEnergy(prevEnergy => prevEnergy + 1)
+			}, 1000)
+		}
+		if (currentEnergy > maxEnergy) setEnergy(maxEnergy)
+		return () => clearTimeout(timer)
+	}, [currentEnergy])
+
 	return (
 		<>
 			<Flex vertical={true} style={boxStyle} justify='center' align='center'>
-				{/* Header */}
+				{/* //*|-----------------------------------------|
+					//*|-------------- Header -------------------|
+					//*|-----------------------------------------| */}
 				<HomeHeader
 					getTheme={getTheme}
 					fontFamily={fontFamily}
-					name={'Samik'}
+					name={tg.initDataUnsafe.user.first_name}
 				/>
 
-				{/* <boost zone> */}
+				{/* //*|-----------------------------------------|
+					//*|-------------- Boost Zone ---------------|
+					//*|-----------------------------------------| */}
 				<BoostZone
 					getTheme={getTheme}
 					fontFamily={fontFamily}
@@ -233,10 +263,11 @@ const Home = () => {
 				/>
 
 				<MyInput theme={getTheme} className='text-center bread-count'>
-					<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+					<P getTheme={getTheme} fontFamily={fontFamily}>
 						{currentMoney.toLocaleString()}
-					</p>
+					</P>
 					<PiBreadLight
+						className='mb-2'
 						fontWeight={'bolder'}
 						fontSize={15}
 						style={{
@@ -249,19 +280,37 @@ const Home = () => {
 				</MyInput>
 
 				<MyInput theme={getTheme} className='main-circle'>
-					<MyTapButton 
+					<MyTapButton
 						theme={getTheme}
 						className={`inner-circle-${getTheme}`}
 						onClick={addClick}
 						click={userData.CPS}
+						currentEnergy={currentEnergy}
+						CPS={userData.CPS}
 					/>
 					<div className={`energy progress-circle`} style={progress}></div>
 				</MyInput>
-				<p className={`energy-count font-bold text-xl p-${getTheme}`}>
-					{currentEnergy}/{maxEnergy}
-				</p>
+				<P
+					className={`energy-count font-bold text-xl`}
+					getTheme={getTheme}
+					fontFamily={fontFamily}
+				>
+					{currentEnergy}/{maxEnergy}{' '}
+					<ThunderboltOutlined
+						style={{
+							color:
+								getTheme == 0
+									? mainStlD['--text-color']
+									: mainStlL['--text-color'],
+							fontWeight: 'bold',
+						}}
+					/>
+				</P>
 
-				<Unnamed
+				{/* //*|-----------------------------------------|
+					//*|----------------- Menu ------------------|
+					//*|-----------------------------------------| */}
+				<Menu
 					getTheme={getTheme}
 					getVibrations={getVibrations}
 					fontFamily={fontFamily}
@@ -280,9 +329,12 @@ const Home = () => {
 					setTheme={setTheme}
 					setUserSettings={setUserSettings}
 					setVibrations={setVibrations}
+					link={link}
+					setLink={setLink}
+					friends={friends}
 				/>
 			</Flex>
-			<ToastContainer />
+			<ToastContainer stacked />
 		</>
 	)
 }

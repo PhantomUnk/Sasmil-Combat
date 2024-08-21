@@ -2,7 +2,7 @@ import { createParticle } from '../Particle'
 import { useRef } from 'react'
 import React, { useState, useEffect } from 'react'
 
-export const MyTapButton = (props) => {
+export const MyTapButton = props => {
 	const [s, setS] = useState({
 		bottom: 482.734375,
 		height: 172,
@@ -17,8 +17,10 @@ export const MyTapButton = (props) => {
 	const {
 		className = String | undefined,
 		theme = Number | 1,
-      onClick = undefined,
-      click = Number | undefined,
+		onClick = undefined,
+		click = Number | undefined,
+		currentEnergy = Number | undefined,
+		CPS = Number | undefined,
 	} = props
 	const e = useRef(null)
 
@@ -28,20 +30,36 @@ export const MyTapButton = (props) => {
 	}, [])
 
 	const x = s.left + s.width / 2
-   const y = s.top + s.height / 2
-   
-   function _onClick() {
-      onClick()
-      createParticle(x, y, click, theme)
-   }
+	const y = s.top + s.height / 2
+
+	const [dis, setDis] = useState(false)
+	useEffect(() => {
+		setDis(currentEnergy < CPS ? true : false)
+	}, [currentEnergy])
 	return (
-		<div
+		<button
+			disabled={dis}
 			data-text={1}
 			className={`my-button-${theme} ${className}`}
-			onClick={() => _onClick()}
 			ref={e}
+			
+			onTouchStart={event => {
+				const touches = event.touches.length
+				console.log(`Количество касаний: ${touches}`)
+				// Обработка каждого касания
+
+				if (dis == false && currentEnergy > CPS) {
+					for (let i = 0; i < touches; i++) {
+						// Ваша логика для каждого касания
+						onClick()
+						createParticle(x, y, click, theme)
+					}
+				} else {
+					console.log('no click')
+				}
+			}}
 		>
 			{props.children}
-		</div>
+		</button>
 	)
 }

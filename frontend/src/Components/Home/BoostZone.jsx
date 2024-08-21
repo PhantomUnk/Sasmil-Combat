@@ -1,8 +1,8 @@
 import { MyInput } from '../Ui/MyInput'
-import { useState } from 'react'
 import { MyButton } from '../Ui/MyButton'
 import { Flex } from 'antd'
 import { Timer } from '../Ui/Timer'
+import { P } from '../Ui/P'
 
 export const BoostZone = ({
 	getTheme,
@@ -31,26 +31,27 @@ export const BoostZone = ({
 
 	return (
 		<MyInput theme={getTheme} className='boost-zone text-center'>
-			<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+			<P fontFamily={fontFamily} getTheme={getTheme}>
 				{t('Зона бустов')}
-			</p>
+			</P>
 			<Flex
 				vertical={false}
 				justify='center'
 				align='center'
 				wrap={false}
-				className='boost-zone-flex relative bottom-11 w-full'
+				className='boost-zone-flex relative bottom-11 w-full p-2'
 			>
 				{sortedUserBoosts.map(userBoost => (
 					<MyButton
+						key={userBoost.name}
 						theme={getTheme}
-						className='card size-12 bg-slate-300 text-center m-2 '
+						className='card size-12 bg-slate-300 text-center mx-2'
 					>
 						<div className='inner-boost-card flex justify-center flex-col items-center'>
 							{boostAvatars[userBoost.name]}
-							<p style={{ '--font': fontFamily() }} className={`p-${getTheme}`}>
+							<P fontFamily={fontFamily} getTheme={getTheme}>
 								lvl {getBoostLvl(userBoost.name)}
-							</p>
+							</P>
 							{userBoost.time !== 'infinity' ? (
 								<Timer
 									seconds={Number(userBoost.time)}
