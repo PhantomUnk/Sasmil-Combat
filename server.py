@@ -1,24 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 import ast
-from time import sleep
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from threading import Thread
 
 from DataBase import DataBase
-import uvicorn
-from threading import Thread
-from datetime import datetime
+from update import updateData
 
 db = DataBase()
 app = FastAPI()  # приложение
 templates = Jinja2Templates(directory=r"web")  # наши шаблоны
 app.mount("/static", StaticFiles(directory=r".\web\static"), name="static")  # монтируем статические компоненты
 origins = ["*"]
+# noinspection PyTypeChecker
 app.add_middleware(  # чтобы CORS работал
     CORSMiddleware,
     allow_origins=origins,
@@ -27,94 +26,86 @@ app.add_middleware(  # чтобы CORS работал
     allow_headers=["*"],
 )
 
-
-def updateEnergy():  # обновляем энергию всех пользователей раз в секунду
-    while True:
-        db.energyPerSecond()
-        sleep(1)
-
-
-#energyThread = Thread(target=updateEnergy).start()  # создаём новый поток, чтобы сервер мог одновременно выполнять действия
+energyThread = Thread(
+    target=updateData).start()  # создаём новый поток, чтобы сервер мог одновременно выполнять действия
 
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
-    print("Connection!")
     return templates.TemplateResponse(name="index.html", request=request)  # возвращаем сам сайт
 
 
 @app.get("/users/getAllUsers")
-async def getUsers(request: Request):
-    print("Connection!")
+async def getUsers():
     return db.viewAllDb()  # возвращаем всю БД
 
 
-@app.post("/users/register")  # регистрируем пользователя
-async def registerUser(request: Request):
-    isRegister = False  # зарегистрирован ли пользователь?
+@app.post("/users/register/{isReferal}")  # регистрируем пользователя
+async def registerUser(request: Request, isReferal: bool):
     temp = await request.body()  # получаем данные
-    data = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
+    userData = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
 
-    for key, value in db.checkUser(int(data)).items():  # Есть ли пользователь в БД?
-        isRegister = bool(value)  # Value либо 1 если есть либо 0 если нет
-
-    if not isRegister:  # если пользователь не зарегистрирован
-        defaultUserData = {"id": int(data), "money": 0, "CPS": 0,
-                           "energy": 1000}  # Записываем данные пользователя для регистрации. int(data) - ID пользователя.
-        db.createUser(defaultUserData)  # создаём user'a
-
-    return "Ok"
+    db.createUser(str(userData)) if not isReferal else db.createReferalUser(userData, userData[
+        'id'])  # создаем обычного юзера если не по рефералке и реферального если по ней
 
 
-@app.post("/users/getUserData")
-async def getUsers(request: Request):
-    temp = await request.body()  # получаем данные
-    data = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
+# @app.post("/users/register/{userID}/{refID}/{isReferal}")  # регистрируем пользователя
+# async def registerUser(userID: str, refID: str, isReferal: bool):
+#    db.createUser(userID) if not isReferal else db.createReferalUser(refID, userID)  # создаем обычного юзера если не по рефералке и реферального если по ней
 
-    userData = db.getUserData(int(data))  # данные пользователя
-    print(userData)
 
-    lastDate = datetime.strptime(str(userData['LastPlayedTime']),
-                                 "%Y-%m-%d %H:%M:%S.%f")  # последнее время когда пользователь зашел
-    currentDate = datetime.now().replace(microsecond=0)  # текущее время
-
-    difference = (currentDate - lastDate).total_seconds()  # разница между временами
-
-    accumulatedEnergy = int(str(difference).rpartition(".")[0])  # энергия, которая накопилась за время отсутствия
-
-    if accumulatedEnergy > (1000 - userData['energy']):  # проверяем есть ли место, чтобы добавить энергию
-        db.updateEnergy(userData['id'], 1000)  # устанавливаем энергию на 1000
-    else:
-        db.updateEnergy(userData['id'], int(accumulatedEnergy + userData['energy']))  # добавляем к существующей энергии накопленную
-
-    return db.getUserData(int(data))
+@app.post("/users/getUserData/{id}")
+async def getUsers(id: str):
+    return db.getUserData(id)
 
 
 @app.post("/click")
-async def click(request: Request):
-    print("Connection!")
-    temp = await request.body()  # получаем запрос
-    data = ast.literal_eval(temp.decode('utf-8'))  # конвертим в нормальный стринг
-    currentTime = datetime.now()  # получаем текущее время
-    db.userClick(data['id'], data['money'], data['energy'], str(currentTime))  # отправляем запрос о клике в БД
-
-    return f"Status : Ok"
+async def click(userData: dict):
+    return db.userClick(str(userData['id']), userData['money'], userData['energy'])  # отправляем запрос о клике в БД
 
 
-@app.post("/buy/boost")
-async def buyBoost(request: Request):
+@app.post("/boosts/buyBoost")
+async def buyBoost(boostData: dict):
+    return db.addBoost(boostData)  # Добавляем Буст
+
+
+@app.get("/boosts/getAvailableBoosts")
+async def getAvailableBoosts():
+    return db.getAvailableBoosts()
+
+
+@app.post("/boosts/getUserBoosts/{id}")
+async def getUsers(id: str):
+    return db.getUserBoosts(id)
+
+
+# @app.post("/users/setUserSettings/")
+# async def setUserSettings(settingsData: dict):
+#     a = await settingsData
+#     print(a)
+#     # return db.setUserSettings(str(settingsData['id']), settingsData['language'], settingsData['theme'],
+#     #                           settingsData['vibrator'])
+
+@app.post("/users/setUserSettings/")
+async def setUserSettings(request: Request):
     temp = await request.body()  # получаем данные
-    data = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
+    settingsData = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
+    return db.setUserSettings(str(settingsData['id']), settingsData['language'], settingsData['theme'],
+                              settingsData['vibrator'])
 
-    db.addBoost(data['id'], data['name'])  # Добавляем Буст
+
+@app.post("/users/getUserSettings/{id}")
+async def getUserSettings(id: str):
+    return db.getUserSettings(id)
 
 
-@app.post("/users/getUserBoosts")
-async def getUsers(request: Request):
-    temp = await request.body()  # получаем данные
-    data = ast.literal_eval(temp.decode('utf-8'))  # превращаем данные в string
+@app.post("/users/generateRefLink/{id}/{isCheck}")
+async def getUserSettings(id: str, isCheck: bool):
+    return db.generateReferalLink(id, isCheck)
 
-    return db.getUserBoosts(int(data))
 
+@app.post("/users/getReferalFriends/{id}")
+async def getReferalFriends(id: str):
+    return db.getReferalFriends(id)
 
 # команда для запуска сервера - uvicorn server:app --reload
