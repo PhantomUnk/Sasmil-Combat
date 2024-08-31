@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 import ast
+import uvicorn
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
@@ -38,6 +39,11 @@ async def root(request: Request):
 @app.get("/users/getAllUsers")
 async def getUsers():
     return db.viewAllDb()  # возвращаем всю БД
+
+
+# @app.get("/favicon.ico")
+# async def getUsers():
+#     return "db.viewAllDb()"  # возвращаем всю БД
 
 
 @app.post("/users/register/{isReferal}")  # регистрируем пользователя
@@ -107,5 +113,9 @@ async def getUserSettings(id: str, isCheck: bool):
 @app.post("/users/getReferalFriends/{id}")
 async def getReferalFriends(id: str):
     return db.getReferalFriends(id)
+
+
+if __name__ == '__main__':
+    uvicorn.run(port=8000, app=app)
 
 # команда для запуска сервера - uvicorn server:app --reload

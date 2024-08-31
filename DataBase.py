@@ -72,7 +72,6 @@ class DataBase:
         return self._execute_query(f"SELECT * FROM `sasmilcombatdb`.`boosts` WHERE userID = %s;", id)
 
     def setUserSettings(self, id: str, language: str, theme: bool, vibrator: int) -> bool:
-        print(f"id = {id}; language = {language}; theme = {theme}; vibrator = {vibrator}")
         return self._execute_commit(
             f"INSERT INTO `sasmilcombatdb`.`usersettings` (userID, language, theme, vibrator) VALUES (%s, %s, %s, %s);",
             (str(id), str(language), bool(theme), int(vibrator)))  # устанавливаю настройки
@@ -165,33 +164,33 @@ class DataBase:
 
         if boostData['name'] == "Energy Limit":  # если буст такой
             self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET MaxEnergy = MaxEnergy + 1000 WHERE id = %s;",
-                                 boostData['id'])  # MaxEnergy = MaxEnergy + 1000
+                                 str(boostData['id']))  # MaxEnergy = MaxEnergy + 1000
             self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = MaxEnergy WHERE id = %s;",
-                                 boostData['id'])  # energy = MaxEnergy
+                                 str(boostData['id']))  # energy = MaxEnergy
 
         elif boostData['name'] == "MultiTap":
             self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = CPS + 1 WHERE id = %s;",
-                                 boostData['id'])  # CPS += 1
+                                 str(boostData['id']))  # CPS += 1
         elif boostData['name'] == "Null Boost":
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;", (50000, 11))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = %s WHERE id = %s;", (1, 11))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = %s WHERE id = %s;", (1, 11))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = %s WHERE id = %s;", (1000, 11))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET MaxEnergy = %s WHERE id = %s;", (1000, 11))
+            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;", (50000, '11'))
+            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = %s WHERE id = %s;", (1, '11'))
+            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = %s WHERE id = %s;", (1, '11'))
+            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = %s WHERE id = %s;", (1000, '11'))
+            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET MaxEnergy = %s WHERE id = %s;", (1000, '11'))
             self._execute_commit(f"TRUNCATE `sasmilcombatdb`.`boosts`")
 
         elif boostData['name'] == "Full Energy":
             if not self._can_purchase_full_energy(id):
                 return False
             self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = MaxEnergy WHERE id = %s;",
-                                 boostData['id'])  # восстанавливаем полностью энергию
+                                 str(boostData['id']))  # восстанавливаем полностью энергию
 
         self._execute_commit(f'UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;',
-                             (newUserMoney, boostData['id']))  # убавляем бабки пользователя
+                             (newUserMoney, str(boostData['id'])))  # убавляем бабки пользователя
 
         return self._execute_commit(
             f'INSERT INTO `sasmilcombatdb`.`boosts` (`userID`, `name`, `time`, `lastPurchasedTime`) VALUES (%s, %s, %s, %s)',
-            (boostData['id'], str(boostData['name']), str(boostData['time']),
+            (str(boostData['id']), str(boostData['name']), str(boostData['time']),
              str(datetime.now())))  # добавляем буст пользователю
 
     def energyPerSecond(self) -> None:  # обновляем энергию каждую секунду (Зависим от updateEnergy)
@@ -199,10 +198,10 @@ class DataBase:
         for (user) in data:  # для каждого user'а во всех user'ах
             userID = user['id']  # ID user'а
             userEnergy = user['energy']  # Энергия user'а
-            maxUserEnergy = user['MaxEnergy']  # Максимальная энергия user'а
+            maxUserEnergy = user['MaxEnergy']  # Максимальная энергияs user'а
 
             if userEnergy < maxUserEnergy:  # проверяем можем ли мы добавлять энергию
-                DataBase.updateEnergy(self, userID, userEnergy + 1)  # если да, то добавляем
+                DataBase.updateEnergy(self, userID, userEnergy + 2)  # если да, то добавляем
 
         # print("Energy++")
 
