@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 
-import pymysql
+import sqlite3
 from datetime import datetime
 import logging
 
@@ -9,50 +9,40 @@ import logging
 # noinspection PyTypeChecker
 class DataBase:
     def __init__(self):
-        self.connection = pymysql.connect(  # настраиваем соединение
-            host="localhost",
-            port=3305,
-            user="root",
-            password="root",
-            database="sasmilcombatdb",
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        self.connection = sqlite3.connect('database.db', check_same_thread=False)
+        self.connection.row_factory = sqlite3.Row  # Чтобы результат был в виде словарей
         self.boostTime = 5
 
     def _execute_query(self, query: str, params: tuple = ()) -> list:
         try:
-            self.connection.connect()
-            with self.connection.cursor() as cursor:
+            with self.connection as conn:
+                cursor = conn.cursor()
                 cursor.execute(query, params)
-                self.connection.close()
-                return cursor.fetchall()
+                return [dict(row) for row in cursor.fetchall()]  # Преобразуем результат в список словарей
         except Exception as ex:
-            logging.error("Connection refused...")
+            logging.error("Query execution failed...")
             logging.error(ex)
-            self.connection.close()
-            return ex
+            return []
 
     def _execute_commit(self, query: str, params: tuple = ()) -> bool:
         try:
-            self.connection.connect()
-            with self.connection.cursor() as cursor:
+            with self.connection as conn:
+                cursor = conn.cursor()
                 cursor.execute(query, params)
-                self.connection.commit()
-                self.connection.close()
+                conn.commit()
                 return True
         except Exception as ex:
-            logging.error("Connection refused...")
+            logging.error("Commit execution failed...")
             logging.error(ex)
-            self.connection.close()
             return False
 
     def _get_last_boost_time(self, user_id: int, boost_name: str) -> datetime or None:
         result = self._execute_query(
-            f"SELECT lastPurchasedTime FROM `sasmilcombatdb`.`boosts` "
-            f"WHERE userID = %s AND name = %s ORDER BY lastPurchasedTime DESC LIMIT 1;",
-            (user_id, boost_name))  # Берем последнюю lastPurchasedTime в бустах
-        return datetime.strptime(result[0]['lastPurchasedTime'],
-                                 "%Y-%m-%d %H:%M:%S.%f") if result else None  # форматируем и возвращаем если есть result иначе None
+            "SELECT lastPurchasedTime FROM boosts WHERE userID = ? AND name = ? "
+            "ORDER BY lastPurchasedTime DESC LIMIT 1;",
+            (user_id, boost_name)
+        )
+        return datetime.strptime(result[0]['lastPurchasedTime'], "%Y-%m-%d %H:%M:%S.%f") if result else None
 
     def _can_purchase_full_energy(self, user_id: int) -> bool:
         last_purchased_time = self._get_last_boost_time(user_id, "Full Energy")
@@ -65,145 +55,130 @@ class DataBase:
         return self._execute_query("SELECT * FROM users")
 
     def checkUser(self, id: int) -> bool:  # проверяем есть ли пользователь в БД по ID
-        return bool(self._execute_query(f"SELECT EXISTS(SELECT id FROM users WHERE id = %s)", id)[0][
-                        f'EXISTS(SELECT id FROM users WHERE id = {id})'])
+        result = self._execute_query("SELECT EXISTS(SELECT id FROM users WHERE id = ?)", (id,))
+        return bool(result[0]['EXISTS(SELECT id FROM users WHERE id = ?)'])
 
     def getUserBoosts(self, id: str) -> list:  # получаем Boost'ы пользователя по ID
-        return self._execute_query(f"SELECT * FROM `sasmilcombatdb`.`boosts` WHERE userID = %s;", id)
+        return self._execute_query(f"SELECT * FROM boosts WHERE userID = ?;", (id,))
 
     def setUserSettings(self, id: str, language: str, theme: bool, vibrator: int) -> bool:
         return self._execute_commit(
-            f"INSERT INTO `sasmilcombatdb`.`usersettings` (userID, language, theme, vibrator) VALUES (%s, %s, %s, %s);",
-            (str(id), str(language), bool(theme), int(vibrator)))  # устанавливаю настройки
+            "INSERT INTO usersettings (userID, language, theme, vibrator) VALUES (?, ?, ?, ?);",
+            (id, language, theme, vibrator)
+        )
 
     def getUserSettings(self, id: str) -> dict:
-        return self._execute_query(f"SELECT * from `sasmilcombatdb`.`usersettings` where userID = %s", id)[
-            -1]  # возвращаю все настройки пользователя
+        result = self._execute_query("SELECT * from usersettings where userID = ?", (id,))
+        return result[-1] if result else {}
 
-    def updateEnergy(self, id: int, energy: int) -> bool:  # обновляем энергию
-        return self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = %s WHERE id = %s;", (energy, id))
+    def updateEnergy(self, id: int, energy: int) -> bool:
+        return self._execute_commit("UPDATE users SET energy = ? WHERE id = ?;", (energy, id))
 
-    def updateBoostTime(self, boostID: int, time: int) -> bool:  # обновляем время буста
-        return self._execute_commit(f"UPDATE `sasmilcombatdb`.`boosts` SET time = %s WHERE boostID = %s;",
-                                    (time, boostID))
+    def updateBoostTime(self, boostID: int, time: int) -> bool:
+        return self._execute_commit("UPDATE boosts SET time = ? WHERE boostID = ?;", (time, boostID))
 
-    def userClick(self, id: str, money: int, energy: int) -> bool:  # обрабатываем click пользователя
-        self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;", (money, id))
-        return self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = %s WHERE id = %s;", (energy, id))
+    def userClick(self, id: str, money: int, energy: int) -> bool:
+        self._execute_commit("UPDATE users SET money = ? WHERE id = ?;", (money, id))
+        return self._execute_commit("UPDATE users SET energy = ? WHERE id = ?;", (energy, id))
 
-    def deleteBoost(self, boostID: int) -> bool:  # удаляем буст по его ID
-        return self._execute_commit(f"DELETE FROM boosts WHERE boostID = %s", boostID)
+    def deleteBoost(self, boostID: int) -> bool:
+        return self._execute_commit("DELETE FROM boosts WHERE boostID = ?", (boostID,))
 
     def getAvailableBoosts(self) -> list:
-        return self._execute_query(f"SELECT * FROM sasmilcombatdb.availableboosts;")  # берем все СУЩЕСТВУЮЩИЕ бусты
+        return self._execute_query("SELECT * FROM availableboosts;")
 
-    def createUser(self, id: str) -> bool:  # создаем нового пользователя
+    def createUser(self, id: str) -> bool:
         return self._execute_commit(
-            f"INSERT INTO `sasmilcombatdb`.`users` (id, money, CPS, energy, MaxEnergy) VALUES (%s, %s, %s, %s, %s);",
-            (id, 0, 1, 1000, 1000))  # создаём пользователя
+            "INSERT INTO users (id, money, CPS, energy, MaxEnergy) VALUES (?, ?, ?, ?, ?);",
+            (id, 0, 1, 1000, 1000)
+        )
 
     def createReferalUser(self, userData: dict, userID: str):
-        linkLevel = int(self._execute_query(f"SELECT linkLevel FROM `sasmilcombatdb`.`referallinks` WHERE userID = %s",
-                                            userData['refID'])[0]['linkLevel'])  # узнаем уровень реферальной ссылки
+        linkLevel = int(self._execute_query(
+            "SELECT linkLevel FROM referallinks WHERE userID = ?", (userData['refID'],))[0]['linkLevel'])
 
-        refMoney = self._execute_query(f"SELECT money FROM `sasmilcombatdb`.`users` WHERE id = %s", userData['refID'])[0]['money']  # деньги пользователя который ДАЛ реферальную ссылку
+        refMoney = self._execute_query(
+            "SELECT money FROM users WHERE id = ?", (userData['refID'],))[0]['money']
 
-        newMoney = int(refMoney) + 5000 + (linkLevel * 2000)  # новые бабки пользователя
+        newMoney = int(refMoney) + 5000 + (linkLevel * 2000)
 
-        self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;",
-                             (newMoney, userData['refID']))  # устанавливаем новые деньги рефереру
-
-        self._execute_commit(f"UPDATE `sasmilcombatdb`.`referallinks` SET linkLevel = linkLevel + 1 where userID = %s",
-                             userData['refID'])  # увеличиваем уровень ссылки
-
+        self._execute_commit("UPDATE users SET money = ? WHERE id = ?;", (newMoney, userData['refID']))
         self._execute_commit(
-            f"INSERT INTO `sasmilcombatdb`.`referalusers` (userID, userFirstname, userLastname, refID, money, registerMonth, registerDay) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (str(userID), str(userData['firstName']), str(userData['lastName']), str(userData['refID']),
-             int(5000 + linkLevel * 2000), str(userData['registerMonth']), str(userData['registerDay'])))
-
-        return self._execute_commit(
-            f"INSERT INTO `sasmilcombatdb`.`users` (id, money, CPS, energy, MaxEnergy) VALUES (%s, %s, %s, %s, %s);",
-            (userID, (5000 + (linkLevel * 2000)) / 2, 1, 1000, 1000))  # создаём пользователя по рефералке
+            "UPDATE referallinks SET linkLevel = linkLevel + 1 where userID = ?", (userData['refID'],))
+        self._execute_commit(
+            "INSERT INTO referalusers (userID, userFirstname, userLastname, refID, money, registerMonth, registerDay) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?);",
+            (userID, userData['firstName'], userData['lastName'], userData['refID'],
+             5000 + linkLevel * 2000, userData['registerMonth'], userData['registerDay'])
+        )
+        return self.createUser(userID)
 
     def generateReferalLink(self, id: str, isCheck: bool) -> bool:
-        if not isCheck:  # если мы не проверяем на наличие ссылки, а делаем generate
-            if self._execute_query("SELECT * FROM `sasmilcombatdb`.`referallinks` WHERE userID = %s",
-                                   id) == ():  # дополнительная защита от Самвела, проверяем есть ли уже существующие ссылки от пользователя
-                return self._execute_commit(
-                    "INSERT INTO `sasmilcombatdb`.`referallinks` (userID, linkLevel) VALUES (%s, %s)",
-                    (id, 1))  # генерим
-        if self._execute_query("SELECT * FROM `sasmilcombatdb`.`referallinks` WHERE userID = %s",
-                                   id) != ():  # если тут что-то есть, то возвращаем True, и ее генерить не надо
-            return True
-        return False
+        if not isCheck:
+            if not self._execute_query("SELECT * FROM referallinks WHERE userID = ?", (id,)):
+                return self._execute_commit("INSERT INTO referallinks (userID, linkLevel) VALUES (?, ?)", (id, 1))
+        return bool(self._execute_query("SELECT * FROM referallinks WHERE userID = ?", (id,)))
 
     def getReferalFriends(self, id: str) -> list:
-        friends = self._execute_query("SELECT * FROM `sasmilcombatdb`.`referalusers` where refID = %s", id)
+        return self._execute_query("SELECT * FROM referalusers where refID = ?", (id,))
 
-        return friends
+    def getUserData(self, id: str) -> dict:
+        userData = self._execute_query("SELECT * FROM users WHERE id = ?", (id,))[0]
 
-    def getUserData(self, id: str) -> dict:  # Берем данные пользователя по ID
-        userData = self._execute_query(f"SELECT * FROM `sasmilcombatdb`.`users` WHERE id = %s;",
-                                       id)[0]  # получаем данные
-
-        last_purchased_time = self._get_last_boost_time(id, "Full Energy")  # берем последнее время покупки Full Energy
-
+        last_purchased_time = self._get_last_boost_time(id, "Full Energy")
         userData['Full_Energy'] = (
                 last_purchased_time is None or
                 (datetime.now() - last_purchased_time).total_seconds() >= self.boostTime
-        )  # Если last_purchased_time нет или есть, но КД не прошло тогда записываем в userData
-
+        )
         return userData
 
     def addBoost(self, boostData: dict) -> bool:  # добавляем BOOST'ы
-        userMoney = int(self._execute_query(f'SELECT money FROM users where id = %s', boostData['id'])[0][
-                            'money'])  # текущие деньги пользователя
-        if userMoney < int(boostData['price']):  # если денег меньше чем цена буста
-            return False
-        newUserMoney = userMoney - int(boostData['price'])  # новые бабки пользователя
+        # Текущие деньги пользователя
+        userMoney = int(self._execute_query('SELECT money FROM users where id = ?', (boostData['id'],))[0]['money'])
 
-        if boostData['name'] == "Energy Limit":  # если буст такой
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET MaxEnergy = MaxEnergy + 1000 WHERE id = %s;",
-                                 str(boostData['id']))  # MaxEnergy = MaxEnergy + 1000
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = MaxEnergy WHERE id = %s;",
-                                 str(boostData['id']))  # energy = MaxEnergy
+        # Проверяем, хватает ли денег на покупку буста
+        if userMoney < int(boostData['price']):
+            return False
+
+        newUserMoney = userMoney - int(boostData['price'])  # Обновляем деньги пользователя
+
+        if boostData['name'] == "Energy Limit":  # Если буст типа "Energy Limit"
+            self._execute_commit("UPDATE users SET MaxEnergy = MaxEnergy + 1000 WHERE id = ?;", (boostData['id'],))
+            self._execute_commit("UPDATE users SET energy = MaxEnergy WHERE id = ?;", (boostData['id'],))
 
         elif boostData['name'] == "MultiTap":
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = CPS + 1 WHERE id = %s;",
-                                 str(boostData['id']))  # CPS += 1
+            self._execute_commit("UPDATE users SET CPS = CPS + 1 WHERE id = ?;", (boostData['id'],))
+
         elif boostData['name'] == "Null Boost":
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;", (50000, '11'))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = %s WHERE id = %s;", (1, '11'))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET CPS = %s WHERE id = %s;", (1, '11'))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = %s WHERE id = %s;", (1000, '11'))
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET MaxEnergy = %s WHERE id = %s;", (1000, '11'))
-            self._execute_commit(f"TRUNCATE `sasmilcombatdb`.`boosts`")
+            self._execute_commit("UPDATE users SET money = ? WHERE id = ?;", (50000, '11'))
+            self._execute_commit("UPDATE users SET CPS = ? WHERE id = ?;", (1, '11'))
+            self._execute_commit("UPDATE users SET energy = ? WHERE id = ?;", (1000, '11'))
+            self._execute_commit("UPDATE users SET MaxEnergy = ? WHERE id = ?;", (1000, '11'))
+            self._execute_commit("DELETE FROM boosts")
 
         elif boostData['name'] == "Full Energy":
-            if not self._can_purchase_full_energy(id):
+            if not self._can_purchase_full_energy(boostData['id']):
                 return False
-            self._execute_commit(f"UPDATE `sasmilcombatdb`.`users` SET energy = MaxEnergy WHERE id = %s;",
-                                 str(boostData['id']))  # восстанавливаем полностью энергию
+            self._execute_commit("UPDATE users SET energy = MaxEnergy WHERE id = ?;", (boostData['id'],))
 
-        self._execute_commit(f'UPDATE `sasmilcombatdb`.`users` SET money = %s WHERE id = %s;',
-                             (newUserMoney, str(boostData['id'])))  # убавляем бабки пользователя
+        # Обновляем деньги пользователя после покупки буста
+        self._execute_commit('UPDATE users SET money = ? WHERE id = ?;', (newUserMoney, boostData['id']))
 
+        # Вставляем запись о бусте в таблицу boosts
         return self._execute_commit(
-            f'INSERT INTO `sasmilcombatdb`.`boosts` (`userID`, `name`, `time`, `lastPurchasedTime`) VALUES (%s, %s, %s, %s)',
-            (str(boostData['id']), str(boostData['name']), str(boostData['time']),
-             str(datetime.now())))  # добавляем буст пользователю
+            'INSERT INTO boosts (userID, name, time, lastPurchasedTime) VALUES (?, ?, ?, ?)',
+            (boostData['id'], boostData['name'], boostData['time'], datetime.now())
+        )
 
-    def energyPerSecond(self) -> None:  # обновляем энергию каждую секунду (Зависим от updateEnergy)
-        data = self._execute_query("SELECT * FROM users")  # выбираем всё из user'ов
-        for (user) in data:  # для каждого user'а во всех user'ах
-            userID = user['id']  # ID user'а
-            userEnergy = user['energy']  # Энергия user'а
-            maxUserEnergy = user['MaxEnergy']  # Максимальная энергияs user'а
+    def energyPerSecond(self) -> None:
+        data = self._execute_query("SELECT * FROM users")
+        for user in data:
+            userID = user['id']
+            userEnergy = user['energy']
+            maxUserEnergy = user['MaxEnergy']
 
-            if userEnergy < maxUserEnergy:  # проверяем можем ли мы добавлять энергию
-                DataBase.updateEnergy(self, userID, userEnergy + 2)  # если да, то добавляем
-
-        # print("Energy++")
+            if userEnergy < maxUserEnergy:
+                self.updateEnergy(userID, userEnergy + 1)
 
     def boostTimePerSecond(self) -> None:  # обновляем время бустов каждую секунду (Зависим от updateBoostTime)
         # всё тоже, самое что и в energyPerSecond

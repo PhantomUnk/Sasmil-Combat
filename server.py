@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 import ast
 import uvicorn
+import os
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
@@ -117,5 +118,6 @@ async def getReferalFriends(id: str):
 
 if __name__ == '__main__':
     uvicorn.run(port=8000, app=app)
+    exec(open('bot.py').read())
 
 # команда для запуска сервера - uvicorn server:app --reload

@@ -53,6 +53,7 @@ async def download_user_photo(id: int):
 
 
 async def register_user(message: types.Message):
+    print(db.checkUser(message.from_user.id))
     if message.chat.type != 'private':  # если чат не приватный - пошел нахуй
         return
 
