@@ -17,7 +17,7 @@ from update import updateData
 db = DataBase()
 app = FastAPI()  # приложение
 templates = Jinja2Templates(directory=r"web")  # наши шаблоны
-app.mount("/static", StaticFiles(directory=r"/web/static"), name="static")  # монтируем статические компоненты
+app.mount("/static", StaticFiles(directory=r"./web/static"), name="static")  # монтируем статические компоненты
 origins = ["*"]
 # noinspection PyTypeChecker
 app.add_middleware(  # чтобы CORS работал
