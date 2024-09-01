@@ -116,8 +116,8 @@ async def getReferalFriends(id: str):
     return db.getReferalFriends(id)
 
 
-if __name__ == '__main__':
-    uvicorn.run(port=8000, app=app)
-    exec(open('bot.py').read())
+# if __name__ == '__main__':
+#     uvicorn.run(port=8000, app=app)
+#     exec(open('bot.py').read())
 
 # команда для запуска сервера - uvicorn server:app --reload
