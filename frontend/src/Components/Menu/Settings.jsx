@@ -79,7 +79,10 @@ export const Settings = ({
 						height: '50%',
 					}}
 				>
-					<h1 style={{ '--font': fontFamily() }} className={`p-t-${getTheme} font-bold text-xl`}>
+					<h1
+						style={{ '--font': fontFamily() }}
+						className={`p-t-${getTheme} font-bold text-xl`}
+					>
 						{t('Настройки')}
 					</h1>
 					<MyInput
@@ -199,17 +202,26 @@ export const Settings = ({
 						/>
 					</div>
 				</Flex>
-				<Button
-					onClick={() => settingsModal.closeModal()}
-					style={{
-						'--font': fontFamily(),
-						backgroundColor: getTheme == 0 ? '#151515' : '',
-						borderColor: getTheme == 0 ? '#393939' : '',
-						color: getTheme == 0 ? '#E8E8E8' : '',
-					}}
-				>
-					{t('Закрыть')}
-				</Button>
+				<div className='flex items-center flex-col'>
+					<P
+						fontFamily={fontFamily}
+						getTheme={getTheme}
+						className='text-xs mb-1'
+					>
+						v 1.0.0
+					</P>
+					<Button
+						onClick={() => settingsModal.closeModal()}
+						style={{
+							'--font': fontFamily(),
+							backgroundColor: getTheme == 0 ? '#151515' : '',
+							borderColor: getTheme == 0 ? '#393939' : '',
+							color: getTheme == 0 ? '#E8E8E8' : '',
+						}}
+					>
+						{t('Закрыть')}
+					</Button>
+				</div>
 			</Flex>
 		</Modal>
 	)

@@ -65,6 +65,7 @@ export const Market = ({
 		'Null Boost': 1,
 	}
 
+
 	return (
 		<Modal
 			isOpen={marketModal.isOpenM()}
@@ -81,13 +82,12 @@ export const Market = ({
 			>
 				<MyInput theme={getTheme} className='text-center flex gap-2 px-4 py-1'>
 					<P fontFamily={fontFamily} getTheme={getTheme}>
-						{currentMoney}
+						{currentMoney.toLocaleString()}
 					</P>
 					<PiBreadLight
 						fontWeight={'bolder'}
 						fontSize={15}
 						style={{
-							marginTop: '5px',
 							color:
 								getTheme == 0
 									? mainStlD['--text-color']
