@@ -1,6 +1,7 @@
 import { createParticle } from '../Particle'
 import { useRef } from 'react'
 import React, { useState, useEffect } from 'react'
+import { PiBreadLight } from 'react-icons/pi'
 
 export const MyTapButton = props => {
 	const [s, setS] = useState({
@@ -39,6 +40,12 @@ export const MyTapButton = props => {
 		setDis(currentEnergy < CPS ? true : false)
 	}, [currentEnergy, CPS])
 
+	const mainStlD = {
+		'--text-color': '#E8E8E8',
+	}
+	const mainStlL = {
+		'--text-color': '#6A6A6A',
+	}
 	return (
 		<button
 			disabled={dis}
@@ -70,7 +77,15 @@ export const MyTapButton = props => {
 				}
 			}}
 		>
-			{props.children}
+			<PiBreadLight
+				className='ml-7'
+				fontWeight={'bolder'}
+				fontSize={110}
+				style={{
+					color:
+						theme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+				}}
+			/>
 		</button>
 	)
 }

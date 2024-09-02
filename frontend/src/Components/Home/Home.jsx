@@ -30,7 +30,6 @@ import { HomeHeader } from './HomeHeader'
 import { Menu } from '../Menu/Menu'
 import { MyTapButton } from '../Ui/MyTapButton'
 import { P } from '../Ui/P'
-import device from 'current-device'
 
 const Home = () => {
 	// * Здесь все useState-ы
@@ -74,7 +73,7 @@ const Home = () => {
 	]) // * useStaet для бустов
 
 	const tg = window.Telegram.WebApp // ! Для телеграмма
-	const ID =  11 //tg.initDataUnsafe.user.id
+	const ID = tg.initDataUnsafe.user.id
 	const device = require('current-device').default
 
 	const mainStlD = {
@@ -197,7 +196,9 @@ const Home = () => {
 				style={{
 					marginTop: '3px',
 					color:
-						getTheme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+						getTheme === 0
+							? mainStlD['--text-color']
+							: mainStlL['--text-color'],
 				}}
 			/>
 		),
@@ -207,7 +208,9 @@ const Home = () => {
 				style={{
 					marginTop: '3px',
 					color:
-						getTheme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+						getTheme === 0
+							? mainStlD['--text-color']
+							: mainStlL['--text-color'],
 				}}
 			/>
 		),
@@ -216,7 +219,9 @@ const Home = () => {
 				spin
 				style={{
 					color:
-						getTheme === 0 ? mainStlD['--text-color'] : mainStlL['--text-color'],
+						getTheme === 0
+							? mainStlD['--text-color']
+							: mainStlL['--text-color'],
 				}}
 			/>
 		),
@@ -230,7 +235,7 @@ const Home = () => {
 		// найс
 		if (currentEnergy < maxEnergy) {
 			var timer = setTimeout(() => {
-				setEnergy(prevEnergy => prevEnergy + 1)
+				setEnergy(prevEnergy => prevEnergy + 2)
 			}, 1000)
 		}
 		if (currentEnergy > maxEnergy) setEnergy(maxEnergy)
@@ -246,7 +251,7 @@ const Home = () => {
 				<HomeHeader
 					getTheme={getTheme}
 					fontFamily={fontFamily}
-					name={'tg.initDataUnsafe.user.first_name'}
+					name={tg.initDataUnsafe.user.first_name}
 				/>
 
 				{/* //*|-----------------------------------------|

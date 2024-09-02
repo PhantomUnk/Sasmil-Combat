@@ -11,6 +11,7 @@ import { Settings } from './Settings'
 import { BsPeople } from 'react-icons/bs'
 import { ModalMethods } from './MethodsForModal'
 import { Friends } from './Friends'
+import { P } from '../Ui/P'
 
 export const Menu = ({
 	getTheme,
@@ -65,12 +66,19 @@ export const Menu = ({
 			justify='space-around'
 			align='center'
 		>
-			<ShoppingCartOutlined
-				style={{ fontSize: 30, color: '#6A6A6A', fontWeight: 25 }}
+			<div
+				className='flex flex-col items-center'
 				onClick={() => {
 					marketModal.openModal()
 				}}
-			/>
+			>
+				<ShoppingCartOutlined
+					style={{ fontSize: 30, color: '#6A6A6A', fontWeight: 25 }}
+				/>
+				<P getTheme={getTheme} fontFamily={fontFamily} className='text-sm'>
+					{t('Магазин')}
+				</P>
+			</div>
 
 			{/* Магазин Бустов */}
 			<Market
@@ -88,12 +96,15 @@ export const Menu = ({
 				sendPurchase={sendPurchase}
 				marketModal={marketModal}
 			/>
-
-			<BsPeople
-				style={{ fontSize: 25, color: '#6A6A6A' }}
+			<div
+				className='flex flex-col items-center'
 				onClick={() => friendsModal.openModal()}
-			/>
-
+			>
+				<BsPeople style={{ fontSize: 25, color: '#6A6A6A' }} />
+				<P getTheme={getTheme} fontFamily={fontFamily} className='text-sm'>
+					{t('Друзья')}
+				</P>
+			</div>
 			<Friends
 				styleForModal={styleForModal}
 				getTheme={getTheme}
@@ -105,20 +116,27 @@ export const Menu = ({
 				ID={ID}
 				friends={friends}
 			/>
-
-			<img
-				src={'/duck.svg'}
-				width={'35em'}
-				alt='duck'
+			<div
+				className='flex flex-col items-center'
 				onClick={() =>
 					createNotify('info', t('Скоро будет доступно'), getTheme)
 				}
-			/>
-			<SettingOutlined
-				style={{ fontSize: 25, color: '#6A6A6A' }}
-				onClick={() => settingsModal.openModal()}
-			/>
+			>
+				<img src={'/duck.svg'} width={'28em'} alt='duck' />
+				<P getTheme={getTheme} fontFamily={fontFamily} className='text-sm'>
+					{t('Утка')}
+				</P>
+			</div>
 
+			<div
+				className='flex flex-col items-center'
+				onClick={() => settingsModal.openModal()}
+			>
+				<SettingOutlined style={{ fontSize: 25, color: '#6A6A6A' }} />
+				<P getTheme={getTheme} fontFamily={fontFamily} className='text-sm'>
+					{t('Настройки')}
+				</P>
+			</div>
 			<Settings
 				setLang={setLang}
 				setUserSettings={setUserSettings}
