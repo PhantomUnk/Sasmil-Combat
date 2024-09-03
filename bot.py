@@ -11,6 +11,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import WebAppInfo, InlineKeyboardMarkup, UserProfilePhotos, FSInputFile, ChatMember
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.client.session.aiohttp import AiohttpSession
 
 from dotenv import load_dotenv
 
@@ -20,12 +21,21 @@ from datetime import datetime as dt
 
 load_dotenv()
 
-API_TOKEN = os.getenv('API_TOKEN')  # токен бота
-URL = os.getenv('URL')  # ссылка на сайт
+API_TOKEN = "7113511087:AAHxDlqBwUYw-_4nYfj3LfDN0IukPeuB7XU"  # токен бота
+URL = "https://phantomunk-sasmil-combat-a0fe.twc1.net"  # ссылка на сайт
 
 bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 db = DataBase()
+
+
+async def checkUser(id: int, message: types.Message):
+    response = requests.post(
+        f"{URL}/users/checkUser/{message.from_user.id}")  # отправляем запрос на стандартные настройки пользователя
+    if str(response.status_code) != "200":
+        await bot.send_message(message.from_user.id, "Something went wrong. Please try later.")
+        return
+    return bool(response.text)
 
 
 async def setUserSettings(message: types.Message):
@@ -34,7 +44,7 @@ async def setUserSettings(message: types.Message):
                     "theme": 1,
                     "vibrator": 10}
     response = requests.post(
-        f"{URL}/users/setUserSettings", str(settingsData))  # отправляем запрос на стандартные настройки пользователя
+        f"{URL}/users/setUserSettings/", str(settingsData))  # отправляем запрос на стандартные настройки пользователя
     if str(response.status_code) != "200":
         await bot.send_message(message.from_user.id, "Something went wrong. Please try later.")
         return
@@ -53,11 +63,12 @@ async def download_user_photo(id: int):
 
 
 async def register_user(message: types.Message):
-    print(db.checkUser(message.from_user.id))
+    userExist = await checkUser(message.from_user.id, message)
+
     if message.chat.type != 'private':  # если чат не приватный - пошел нахуй
         return
 
-    if db.checkUser(message.from_user.id):  # если пользователь есть
+    if userExist:  # если пользователь есть
         await message.reply("Go!", reply_markup=start_webapp())
         return
 
@@ -99,6 +110,9 @@ async def register_user(message: types.Message):
 @dp.message()
 async def start(message: types.Message):
     # await download_user_photo(message.from_user.id)
+    a = await checkUser(message.from_user.id, message)
+
+    print(a)
 
     await register_user(message)
     await setUserSettings(message)
