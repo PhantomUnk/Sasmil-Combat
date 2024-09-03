@@ -21,7 +21,7 @@ from datetime import datetime as dt
 
 load_dotenv()
 
-API_TOKEN = "7113511087:AAHxDlqBwUYw-_4nYfj3LfDN0IukPeuB7XU"  # токен бота
+API_TOKEN = "7456015282:AAEsVS_LyjqcWWHh1yaRU6b0Bkkadm15pP0"  # токен бота
 URL = "https://phantomunk-sasmil-combat-a0fe.twc1.net"  # ссылка на сайт
 
 bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -110,9 +110,6 @@ async def register_user(message: types.Message):
 @dp.message()
 async def start(message: types.Message):
     # await download_user_photo(message.from_user.id)
-    a = await checkUser(message.from_user.id, message)
-
-    print(a)
 
     await register_user(message)
     await setUserSettings(message)
