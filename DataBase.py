@@ -11,7 +11,7 @@ class DataBase:
     def __init__(self):
         self.connection = sqlite3.connect('database.db', check_same_thread=False)
         self.connection.row_factory = sqlite3.Row  # Чтобы результат был в виде словарей
-        self.boostTime = 5
+        self.boostTime = 7200
 
     def _execute_query(self, query: str, params: tuple = ()) -> list:
         try:
