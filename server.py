@@ -66,6 +66,11 @@ async def getUsers(id: str):
     return db.getUserData(id)
 
 
+@app.post("/users/checkUser/{id}")
+async def getUsers(id: str):
+    return db.checkUser(id)
+
+
 @app.post("/click")
 async def click(userData: dict):
     return db.userClick(str(userData['id']), userData['money'], userData['energy'])  # отправляем запрос о клике в БД
